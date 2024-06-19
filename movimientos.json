@@ -1,0 +1,1 @@
+[{"tipo": "ingreso", "monto": 200000.0}, {"tipo": "egreso", "monto": 5000.0, "servicio": "Luz"}, {"tipo": "egreso", "monto": 2000.0, "servicio": "Gas"}, {"tipo": "egreso", "monto": 5000.0, "servicio": "Gas"}]
