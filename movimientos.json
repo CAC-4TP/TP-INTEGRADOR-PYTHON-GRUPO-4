@@ -1,2 +1,4 @@
-[{"operacion": "Ingreso", "monto": 250000, "detalle": "Dinero acreditado"},
-  {"operacion": "Servicio Agregado", "monto": 0, "detalle": "'Alquiler'"}]
+[{"operacion": "Ingreso", "monto": 250500, "detalle": "Dinero acreditado"},
+ {"operacion": "Pago", "monto": -25000, "detalle": "ALQUILER"},
+ {"operacion": "Servicio agregado", "monto": 0, "detalle": "IMPUESTOS"},
+ {"operacion": "Eliminaci\u00f3n de servicio", "monto": 0, "detalle": "IMPUESTOS"}]
