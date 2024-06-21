@@ -5,6 +5,9 @@ import json
 # Constantes de diseño
 FUENTE_LOGO = ("Pacifico", 20)
 FUENTE_TITULO = ("Ubuntu", 24, "bold")
+FUENTE_TITULO_BENEFICIOS= ("Ubuntu", 12, "bold")
+FUENTE_BENEFICIOS = ("Ubuntu", 10)
+COLOR_CUADROS_BENEFICIOS = "LightSkyBlue1"
 FUENTE_TEXTO = ("Ubuntu", 16)
 FUENTE_TEXTO_TABLA = ("Ubuntu", 12, "bold")
 FUENTE_BOTON = ("Ubuntu", 10, "bold")
@@ -46,9 +49,10 @@ def guardar_servicios(servicios):
         json.dump(servicios, archivo)
 
 def mostrar_saldo():
+    global saldo_actual# Variable global cumple la funcion de almacenar el saldo actual
     movimientos = cargar_movimientos()
-    saldo = sum(movimiento['monto'] for movimiento in movimientos if 'monto' in movimiento)
-    label_saldo.config(text=f"Saldo: ${int(saldo)}")  # Mostrar saldo como entero
+    saldo_actual = sum(movimiento['monto'] for movimiento in movimientos if 'monto' in movimiento)
+    label_saldo.config(text=f"Saldo: ${int(saldo_actual)}")  # Mostrar saldo como entero
 
 def configurar_ventana(ventana):
     # Configuración de redimensionamiento de la ventana principal
@@ -99,7 +103,7 @@ def crear_ventana_principal():
     button_agregar_servicio = tk.Button(frame_botones_principales, text="Agregar \n servicio", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=lambda: abrir_ventana(nueva_ventana_agregar_servicio))
     button_agregar_servicio.grid(row=1, column=1, padx=5, pady=2)
 
-    button_beneficios = tk.Button(frame_botones_principales, text="Beneficios", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON)
+    button_beneficios = tk.Button(frame_botones_principales, text="Beneficios", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=lambda: abrir_ventana(nueva_ventana_beneficios))
     button_beneficios.grid(row=2, column=1, padx=5, pady=2)
     
     button_eliminar_servicio = tk.Button(frame_botones_principales, text="Eliminar \n servicio", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=lambda: abrir_ventana(nueva_ventana_eliminar_servicio))
@@ -154,6 +158,7 @@ def nueva_ventana_ingresar_dinero(ventana_ingresar):
             mostrar_saldo()
             messagebox.showinfo("Éxito", "El dinero ha sido ingresado correctamente.")
             ventana_ingresar.destroy()
+   
         else:
             messagebox.showerror("Error", "Por favor, ingrese un monto válido.")
 
@@ -194,8 +199,9 @@ def consultar_movimientos(ventana_actual=None):
 
     tk.Button(ventana_movimientos, text="Cerrar", font=FUENTE_BOTON, bg="white", fg=COLOR_BOTON, width=ANCHO_BOTON, height=ALTO_BOTON, command=ventana_movimientos.destroy).pack(pady=10)
 
+
 def seleccionar_servicio(servicio):
-    global ventana_actual
+    global ventana_actual, saldo_actual
     if ventana_actual is not None:
         ventana_actual.destroy()
     ventana_actual = tk.Toplevel()
@@ -208,16 +214,19 @@ def seleccionar_servicio(servicio):
     entry_monto.pack(pady=10)
 
     def pagar():
-        monto = entry_monto.get()
-        if monto.isdigit():
+        global saldo_actual
+        monto = float(entry_monto.get())
+        if monto <= saldo_actual:
+            saldo_actual -= monto
             movimientos = cargar_movimientos()
-            movimientos.append({"operacion": "Pago", "monto": -int(monto), "detalle": f"{servicio}"})
+            movimientos.append({"operacion": "Pago de servicio", "monto": -monto, "detalle": f"{servicio}"})
             guardar_movimientos(movimientos)
             mostrar_saldo()
             messagebox.showinfo("Éxito", "El servicio ha sido pagado correctamente.")
             ventana_actual.destroy()
         else:
-            messagebox.showerror("Error", "Por favor, ingrese un monto válido.")
+            messagebox.showerror("Error", "Saldo insuficiente.")
+            ventana_actual.destroy()
 
     tk.Button(ventana_actual, text="Pagar", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=pagar).pack(pady=10)
 
@@ -285,6 +294,57 @@ def eliminar_servicio(servicio, ventana_eliminar):
         ventana_eliminar.destroy()
     else:
         messagebox.showerror("Error", "El servicio no existe.")
+        
+# Esta es la ventana de beneficios       
+def nueva_ventana_beneficios(ventana_beneficios):
+    ventana_beneficios.title("Beneficios")
+    configurar_ventana(ventana_beneficios)
+
+    # Crear marco principal con el fondo azul
+    frame_principal = tk.Frame(ventana_beneficios, bg=COLOR_BOTON)
+    frame_principal.pack(expand=True, fill="both")
+
+    # Crear marcos para los beneficios (uno debajo del otro)
+    frame_beneficio_1 = tk.Frame(frame_principal, bg=COLOR_CUADROS_BENEFICIOS, padx=20, pady=20)
+    frame_beneficio_1.pack(fill="x", pady=15)  # Ajustar pack para expandir horizontalmente
+
+    # Contenido del primer beneficio
+    tk.Label(frame_beneficio_1, text="RECARGANDO TU CELULAR", font=FUENTE_TITULO_BENEFICIOS).pack(pady=(0, 10))
+    tk.Label(frame_beneficio_1, text="Con la primera recarga que le hagas a tu celular, recibirás un 10% de descuento.", font=FUENTE_TEXTO).pack(pady=(0, 10))
+
+    # Imagen del primer beneficio
+    imagen_beneficio_1 = tk.PhotoImage(file="imagenes/claro.png")  # Reemplaza con la ruta de tu imagen
+    imagen_beneficio_1 = imagen_beneficio_1.subsample(6)  # Redimensionar la imagen
+    label_imagen_beneficio_1 = tk.Label(frame_beneficio_1, image=imagen_beneficio_1)
+    label_imagen_beneficio_1.image = imagen_beneficio_1  # Guardar la referencia para evitar que el recolector de basura la elimine
+    label_imagen_beneficio_1.pack(pady=(10, 0)) # Ajustar el espacio entre la imagen y el texto
+
+    # Crear marco para el segundo beneficio
+    frame_beneficio_2 = tk.Frame(frame_principal, bg=COLOR_CUADROS_BENEFICIOS, padx=20, pady=20)
+    frame_beneficio_2.pack(fill="x", pady=20)  # Ajustar pack para expandir horizontalmente
+
+    # Contenido del segundo beneficio
+    tk.Label(frame_beneficio_2, text="Beneficio 2", font=FUENTE_TITULO_BENEFICIOS).pack(pady=(0, 10))
+    tk.Label(frame_beneficio_2, text="Texto explicativo del beneficio 2...", font=FUENTE_TEXTO).pack()
+
+    # Imagen del segundo beneficio
+    imagen_beneficio_2 = tk.PhotoImage(file="imagenes/vea.png")  # Reemplaza con la ruta de tu imagen
+    imagen_beneficio_2 = imagen_beneficio_2.subsample(6)  # Redimensionar la imagen
+    label_imagen_beneficio_2 = tk.Label(frame_beneficio_2, image=imagen_beneficio_2)
+    label_imagen_beneficio_2.image = imagen_beneficio_2  # Guardar la referencia para evitar que el recolector de basura la elimine
+    label_imagen_beneficio_2.pack(pady=(10, 0))
+
+    # Botones home y salir (sin repetición)
+    frame_botones = tk.Frame(ventana_beneficios, bg=COLOR_BOTON, height=ALTURA_FRANJA)
+    frame_botones.pack(fill="x", side="bottom")
+    frame_botones.lower()
+
+    button_home = tk.Button(frame_botones, text="HOME", font=FUENTE_BOTON, bg="white", fg=COLOR_BOTON, width=ANCHO_BOTON, height=ALTO_BOTON, state="disabled")
+    button_home.pack(side=tk.LEFT, padx=5, pady=5)
+
+    button_salir = tk.Button(frame_botones, text="SALIR", font=FUENTE_BOTON, bg="white", fg=COLOR_BOTON, width=ANCHO_BOTON, height=ALTO_BOTON, command=ventana_beneficios.destroy)
+    button_salir.pack(side=tk.RIGHT, padx=5, pady=5)
+
 
 crear_ventana_principal()
 
