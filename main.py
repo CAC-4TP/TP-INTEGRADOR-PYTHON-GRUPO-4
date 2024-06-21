@@ -5,20 +5,25 @@ import json
 # Constantes de diseño
 FUENTE_LOGO = ("Pacifico", 20)
 FUENTE_TITULO = ("Ubuntu", 24, "bold")
-FUENTE_TITULO_BENEFICIOS= ("Ubuntu", 12, "bold")
-FUENTE_BENEFICIOS = ("Ubuntu", 10)
-COLOR_CUADROS_BENEFICIOS = "LightSkyBlue1"
 FUENTE_TEXTO = ("Ubuntu", 16)
+
+COLOR_PRINCIPAL = "#000000" 
+
+FUENTE_TITULO_BENEFICIOS = ("Ubuntu", 12, "bold underline")  # Subrayar el título de beneficios
+FUENTE_BENEFICIOS = ("Ubuntu", 10)
+COLOR_CUADROS_BENEFICIOS = "#e1e1f9"
+
 FUENTE_TEXTO_TABLA = ("Ubuntu", 12, "bold")
+
 FUENTE_BOTON = ("Ubuntu", 10, "bold")
-COLOR_PRINCIPAL = "#000000"
 COLOR_BOTON = "#007BFF"
 COLOR_TEXTO_BOTON = "#FFFFFF"
 ANCHO_BOTON = 10
 ALTO_BOTON = 2
+
 ALTURA_FRANJA = 80
 
-# Variable global para la ventana actual
+# Variable global para la ventana actual: esta en none porque no hay ventana inicialmente
 ventana_actual = None
 
 # Funciones para manejar los movimientos: archivos json
@@ -293,60 +298,47 @@ def eliminar_servicio(servicio, ventana_eliminar):
         messagebox.showinfo("Éxito", "El servicio ha sido eliminado correctamente.")
         ventana_eliminar.destroy()
     else:
-        messagebox.showerror("Error", "El servicio no existe.")
-        
-# Esta es la ventana de beneficios       
+        messagebox.showerror("Error", "El servicio no existe.")    
+
 def nueva_ventana_beneficios(ventana_beneficios):
     ventana_beneficios.title("Beneficios")
+    ventana_beneficios.geometry("300x600")  # Ajustar la geometría de la ventana
     configurar_ventana(ventana_beneficios)
 
-    # Crear marco principal con el fondo azul
-    frame_principal = tk.Frame(ventana_beneficios, bg=COLOR_BOTON)
-    frame_principal.pack(expand=True, fill="both")
+    # Título de beneficios con fuente y subrayado
+    tk.Label(ventana_beneficios, text="Beneficios de la Billetera Virtual", font=FUENTE_TITULO_BENEFICIOS, wraplength=280).pack(pady=10)
 
-    # Crear marcos para los beneficios (uno debajo del otro)
-    frame_beneficio_1 = tk.Frame(frame_principal, bg=COLOR_CUADROS_BENEFICIOS, padx=20, pady=20)
-    frame_beneficio_1.pack(fill="x", pady=15)  # Ajustar pack para expandir horizontalmente
+    beneficios = [
+        "😊 Facilidad de uso: realiza pagos de manera sencilla y rápida.",
+        "🔒 Seguridad: protege tu información personal y financiera.",
+        "🌍 Accesibilidad: disponible en todo momento y lugar.",
+        "📊 Control: mantén un registro de tus movimientos financieros.",
+        "⏳ Ahorro de tiempo: evita filas y trámites presenciales."
+    ]
 
-    # Contenido del primer beneficio
-    tk.Label(frame_beneficio_1, text="RECARGANDO TU CELULAR", font=FUENTE_TITULO_BENEFICIOS).pack(pady=(0, 10))
-    tk.Label(frame_beneficio_1, text="Con la primera recarga que le hagas a tu celular, recibirás un 10% de descuento.", font=FUENTE_TEXTO).pack(pady=(0, 10))
+    frame_beneficios = tk.Frame(ventana_beneficios, bg=COLOR_CUADROS_BENEFICIOS)
+    frame_beneficios.pack(fill="both", expand=True, padx=10, pady=10)
 
-    # Imagen del primer beneficio
-    imagen_beneficio_1 = tk.PhotoImage(file="imagenes/claro.png")  # Reemplaza con la ruta de tu imagen
-    imagen_beneficio_1 = imagen_beneficio_1.subsample(6)  # Redimensionar la imagen
-    label_imagen_beneficio_1 = tk.Label(frame_beneficio_1, image=imagen_beneficio_1)
-    label_imagen_beneficio_1.image = imagen_beneficio_1  # Guardar la referencia para evitar que el recolector de basura la elimine
-    label_imagen_beneficio_1.pack(pady=(10, 0)) # Ajustar el espacio entre la imagen y el texto
+    # Cambiar la fuente y tamaño del texto para beneficios
+    for beneficio in beneficios:
+        tk.Label(frame_beneficios, text=beneficio, font=("Roboto Medium", 11), wraplength=300, justify="left", anchor="w", bg=COLOR_CUADROS_BENEFICIOS).pack(pady=5, padx=10, anchor="w")
 
-    # Crear marco para el segundo beneficio
-    frame_beneficio_2 = tk.Frame(frame_principal, bg=COLOR_CUADROS_BENEFICIOS, padx=20, pady=20)
-    frame_beneficio_2.pack(fill="x", pady=20)  # Ajustar pack para expandir horizontalmente
+    # Cambiar la fuente y agregar emojis a cada oración
+    for beneficio in beneficios:
+        tk.Label(frame_beneficios, text=beneficio, font=FUENTE_BENEFICIOS, wraplength=280, justify="left", anchor="w", bg=COLOR_CUADROS_BENEFICIOS).pack(pady=5, padx=10, anchor="w")
 
-    # Contenido del segundo beneficio
-    tk.Label(frame_beneficio_2, text="Beneficio 2", font=FUENTE_TITULO_BENEFICIOS).pack(pady=(0, 10))
-    tk.Label(frame_beneficio_2, text="Texto explicativo del beneficio 2...", font=FUENTE_TEXTO).pack()
-
-    # Imagen del segundo beneficio
-    imagen_beneficio_2 = tk.PhotoImage(file="imagenes/vea.png")  # Reemplaza con la ruta de tu imagen
-    imagen_beneficio_2 = imagen_beneficio_2.subsample(6)  # Redimensionar la imagen
-    label_imagen_beneficio_2 = tk.Label(frame_beneficio_2, image=imagen_beneficio_2)
-    label_imagen_beneficio_2.image = imagen_beneficio_2  # Guardar la referencia para evitar que el recolector de basura la elimine
-    label_imagen_beneficio_2.pack(pady=(10, 0))
-
-    # Botones home y salir (sin repetición)
+    # Botones home y salir
     frame_botones = tk.Frame(ventana_beneficios, bg=COLOR_BOTON, height=ALTURA_FRANJA)
     frame_botones.pack(fill="x", side="bottom")
     frame_botones.lower()
 
-    button_home = tk.Button(frame_botones, text="HOME", font=FUENTE_BOTON, bg="white", fg=COLOR_BOTON, width=ANCHO_BOTON, height=ALTO_BOTON, state="disabled")
-    button_home.pack(side=tk.LEFT, padx=5, pady=5)
+    ventana_beneficios.mainloop()
 
-    button_salir = tk.Button(frame_botones, text="SALIR", font=FUENTE_BOTON, bg="white", fg=COLOR_BOTON, width=ANCHO_BOTON, height=ALTO_BOTON, command=ventana_beneficios.destroy)
-    button_salir.pack(side=tk.RIGHT, padx=5, pady=5)
 
 
 crear_ventana_principal()
+
+
 
 
 
