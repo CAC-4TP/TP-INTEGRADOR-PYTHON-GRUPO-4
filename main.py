@@ -6,7 +6,7 @@ import json
 FUENTE_LOGO = ("Pacifico", 20)
 FUENTE_TITULO = ("Ubuntu", 24, "bold")
 FUENTE_TEXTO = ("Ubuntu", 16)
-FUENTE_TEXTO_TABLA = ("Ubuntu", 14)
+FUENTE_TEXTO_TABLA = ("Ubuntu", 12, "bold")
 FUENTE_BOTON = ("Ubuntu", 10, "bold")
 COLOR_PRINCIPAL = "#000000"
 COLOR_BOTON = "#007BFF"
@@ -15,9 +15,10 @@ ANCHO_BOTON = 10
 ALTO_BOTON = 2
 ALTURA_FRANJA = 80
 
-# Funciones para manejar los movimientos: archivos json
+# Variable global para la ventana actual
+ventana_actual = None
 
-# Función para cargar los movimientos
+# Funciones para manejar los movimientos: archivos json
 def cargar_movimientos():
     try:
         with open('movimientos.json', 'r') as archivo:
@@ -26,12 +27,10 @@ def cargar_movimientos():
         movimientos = []
     return movimientos
 
-# Función para guardar los movimientos en un archivo json
 def guardar_movimientos(movimientos):
     with open('movimientos.json', 'w') as archivo:
         json.dump(movimientos, archivo)
 
-# Funciones para manejar los servicios
 def cargar_servicios():
     try:
         with open('servicios.json', 'r') as archivo:
@@ -42,95 +41,84 @@ def cargar_servicios():
         servicios = []  # En caso de ser un diccionario, inicializar como lista vacía
     return servicios
 
-# Función para guardar los servicios en un archivo json
 def guardar_servicios(servicios):
     with open('servicios.json', 'w') as archivo:
         json.dump(servicios, archivo)
 
-# Función para mostrar el saldo
 def mostrar_saldo():
     movimientos = cargar_movimientos()
-    saldo = sum(movimiento['monto'] if movimiento.get('tipo') == 'ingreso' else -movimiento['monto'] for movimiento in movimientos if 'monto' in movimiento and 'tipo' in movimiento)
+    saldo = sum(movimiento['monto'] for movimiento in movimientos if 'monto' in movimiento)
     label_saldo.config(text=f"Saldo: ${int(saldo)}")  # Mostrar saldo como entero
 
-# Función para crear la ventana principal
+def configurar_ventana(ventana):
+    # Configuración de redimensionamiento de la ventana principal
+    ventana.resizable(True, True)  # Permitir redimensionamiento horizontal y vertical
+    ventana.minsize(350, 550)  # Establecer tamaño mínimo para evitar que la ventana se haga demasiado pequeña
+
+    frame_contenedor = tk.Frame(ventana, bg=COLOR_BOTON, height=ALTURA_FRANJA)
+    frame_contenedor.pack(fill="x")
+
+    logo = tk.PhotoImage(file="imagenes/logo.png")
+    logo = logo.subsample(4)  # Redimensionar la imagen
+
+    label_logo_texto = tk.Label(frame_contenedor, image=logo, text="PayPy", font=FUENTE_LOGO, bg=COLOR_BOTON, fg="white", compound="top", padx=5, pady=10)
+    label_logo_texto.image = logo  # Para evitar que el garbage collector elimine la imagen
+    label_logo_texto.pack(pady=(10, 0))
+
+    frame_inferior = tk.Frame(ventana, bg=COLOR_BOTON, height=ALTURA_FRANJA)
+    frame_inferior.pack(fill="x", side="bottom")
+    frame_inferior.lower()  # lower es un método que coloca un widget debajo de otro
+
+    button_home = tk.Button(frame_inferior, text="HOME", font=FUENTE_BOTON, bg="white", fg=COLOR_BOTON, width=ANCHO_BOTON, height=ALTO_BOTON, state="disabled")
+    button_home.pack(side=tk.LEFT, padx=5, pady=5)
+
+    button_salir = tk.Button(frame_inferior, text="SALIR", font=FUENTE_BOTON, bg="white", fg=COLOR_BOTON, width=ANCHO_BOTON, height=ALTO_BOTON, command=ventana.destroy)
+    button_salir.pack(side=tk.RIGHT, padx=5, pady=5)
+
 def crear_ventana_principal():
     global ventana, label_saldo
     ventana = tk.Tk()
     ventana.title("Billetera Virtual")
-    ventana.geometry("350x500")
+    configurar_ventana(ventana)
 
-    # Crear un frame para contener el logo y el canvas azul
-    frame_contenedor = tk.Frame(ventana, bg="#007BFF", height=ALTURA_FRANJA)
-    frame_contenedor.pack(fill="x")
-
-    # Cargar la imagen
-    logo = tk.PhotoImage(file="imagenes/logo.png")
-    logo = logo.subsample(4)  # Redimensionar la imagen
-
-    # Crear el label para el logo y el texto dentro del frame
-    label_logo_texto = tk.Label(frame_contenedor, image=logo, text="PayPy", font=FUENTE_LOGO, bg="#007BFF", fg="white", compound="top", padx=5, pady=10)
-    label_logo_texto.pack(pady=(10, 0))
-
-    # Este es el label que muestra el saldo
     label_saldo = tk.Label(ventana, text="Saldo: $0", font=FUENTE_TITULO)
     label_saldo.pack(pady=(8, 10))
 
-    # Frame para los botones principales: 
-    # el frame es el contenedor de los botones
     frame_botones_principales = tk.Frame(ventana)
     frame_botones_principales.pack()
 
-    ####################### Botones principales#####################
-    # Boton para ingresar dinero
-    button_ingresar = tk.Button(frame_botones_principales, text="Ingresar \n dinero", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=nueva_ventana_ingresar_dinero)
+    button_ingresar = tk.Button(frame_botones_principales, text="Ingresar \n dinero", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=lambda: abrir_ventana(nueva_ventana_ingresar_dinero))
     button_ingresar.grid(row=0, column=0, padx=5, pady=2)
 
-    # Boton para consultar movimientos
-    button_consultar = tk.Button(frame_botones_principales, text="Movimientos", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=consultar_movimientos)
+    button_consultar = tk.Button(frame_botones_principales, text="Movimientos", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=lambda: abrir_ventana(consultar_movimientos))
     button_consultar.grid(row=0, column=1, padx=5, pady=2)
 
-    # Boton para pagar servicios
-    button_pagar = tk.Button(frame_botones_principales, text="Pagar \n servicio", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=nueva_ventana_seleccionar_servicio)
+    button_pagar = tk.Button(frame_botones_principales, text="Pagar \n servicio", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=lambda: abrir_ventana(nueva_ventana_seleccionar_servicio))
     button_pagar.grid(row=1, column=0, padx=5, pady=2)
 
-    # Boton para agregar servicios
-    button_agregar_servicio = tk.Button(frame_botones_principales, text="Agregar \n servicio", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=nueva_ventana_agregar_servicio)
+    button_agregar_servicio = tk.Button(frame_botones_principales, text="Agregar \n servicio", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=lambda: abrir_ventana(nueva_ventana_agregar_servicio))
     button_agregar_servicio.grid(row=1, column=1, padx=5, pady=2)
 
-    # Boton para ver los beneficios
     button_beneficios = tk.Button(frame_botones_principales, text="Beneficios", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON)
     button_beneficios.grid(row=2, column=1, padx=5, pady=2)
     
-    # Boton para eliminar servicios
-    button_eliminar_servicio = tk.Button(frame_botones_principales, text="Eliminar \n servicio", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=nueva_ventana_eliminar_servicio)
+    button_eliminar_servicio = tk.Button(frame_botones_principales, text="Eliminar \n servicio", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=lambda: abrir_ventana(nueva_ventana_eliminar_servicio))
     button_eliminar_servicio.grid(row=2, column=0, padx=5, pady=2)
-
-    # Crear un frame para la franja azul que esta detrás de los botones
-    frame_inferior = tk.Frame(ventana, bg="#007BFF", height=ALTURA_FRANJA)
-    frame_inferior.pack(fill="x", side="bottom")
-
-    # Colocar la franja azul detrás de los botones "HOME" y "SALIR"
-    frame_inferior.lower() #lower es un método que coloca un widget debajo de otro
-
-    # Botón HOME desactivado en el menu principal
-    button_home = tk.Button(frame_inferior, text="HOME", font=FUENTE_BOTON, bg="white", fg="#007BFF", width=ANCHO_BOTON, height=ALTO_BOTON, state="disabled")
-    button_home.pack(side=tk.LEFT, padx=5, pady=5)
-    # Botón SALIR
-    button_salir = tk.Button(frame_inferior, text="SALIR", font=FUENTE_BOTON, bg="white", fg="#007BFF", width=ANCHO_BOTON, height=ALTO_BOTON, command=ventana.destroy)
-    button_salir.pack(side=tk.RIGHT, padx=5, pady=5)
 
     mostrar_saldo()  # Actualizar el saldo al iniciar la aplicación
 
     ventana.mainloop()
 
-############### Funciones para las diferentes ventanas emergentes###############
+def abrir_ventana(funcion_ventana):
+    global ventana_actual
+    if ventana_actual is not None:  # Cerrar la ventana actual si existe
+        ventana_actual.destroy()
+    ventana_actual = tk.Toplevel()
+    funcion_ventana(ventana_actual)
 
-# Ventana para seleccionar el servicio a pagar
-def nueva_ventana_seleccionar_servicio():
-    ventana_seleccionar = tk.Toplevel()
+def nueva_ventana_seleccionar_servicio(ventana_seleccionar):
     ventana_seleccionar.title("Seleccionar Servicio")
-    ventana_seleccionar.geometry("350x200")
+    configurar_ventana(ventana_seleccionar)
 
     tk.Label(ventana_seleccionar, text="Seleccione el servicio a pagar:", font=FUENTE_TEXTO).pack(pady=10)
 
@@ -147,131 +135,159 @@ def nueva_ventana_seleccionar_servicio():
                   command=lambda 
                   s=servicio: seleccionar_servicio(s)).pack(pady=5)
 
-    tk.Button(ventana_seleccionar, text="Cancelar", font=FUENTE_BOTON, bg="white", fg="#007BFF", width=ANCHO_BOTON, height=ALTO_BOTON, command=ventana_seleccionar.destroy).pack(pady=10)
+    tk.Button(ventana_seleccionar, text="Cancelar", font=FUENTE_BOTON, bg="white", fg=COLOR_BOTON, width=ANCHO_BOTON, height=ALTO_BOTON, command=ventana_seleccionar.destroy).pack(pady=10)
 
-# Ventana para agregar dinero
-def nueva_ventana_ingresar_dinero():
-    ventana_ingresar = tk.Toplevel()
+def nueva_ventana_ingresar_dinero(ventana_ingresar):
     ventana_ingresar.title("Ingresar Dinero")
-    ventana_ingresar.geometry("350x200")
+    configurar_ventana(ventana_ingresar)
 
-    tk.Label(ventana_ingresar, text="Ingrese el monto a ingresar:", font=FUENTE_TEXTO).pack(pady=10)
-
+    tk.Label(ventana_ingresar, text="Ingrese el monto:", font=FUENTE_TEXTO).pack(pady=10)
     entry_monto = tk.Entry(ventana_ingresar, font=FUENTE_TEXTO)
     entry_monto.pack(pady=10)
 
-    def ingresar_dinero():
+    def guardar_ingreso():
         monto = entry_monto.get()
         if monto.isdigit():
-            nuevo_movimiento = {
-                "tipo": "ingreso",
-                "monto": int(monto)  # Convertir a entero
-            }
             movimientos = cargar_movimientos()
-            movimientos.append(nuevo_movimiento)
+            movimientos.append({"operacion": "Ingreso", "monto": int(monto), "detalle": "Dinero acreditado"})
             guardar_movimientos(movimientos)
             mostrar_saldo()
+            messagebox.showinfo("Éxito", "El dinero ha sido ingresado correctamente.")
             ventana_ingresar.destroy()
         else:
-            messagebox.showerror("Error", "Ingrese un monto válido.")
+            messagebox.showerror("Error", "Por favor, ingrese un monto válido.")
 
-    tk.Button(ventana_ingresar, text="Ingresar", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=ingresar_dinero).pack(pady=10)
-    tk.Button(ventana_ingresar, text="Cancelar", font=FUENTE_BOTON, bg="white", fg="#007BFF", width=ANCHO_BOTON, height=ALTO_BOTON, command=ventana_ingresar.destroy).pack(pady=10)
+    tk.Button(ventana_ingresar, text="Guardar", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=guardar_ingreso).pack(pady=10)
 
-# Función para consultar los movimientos
-def consultar_movimientos():
+# Modificación para que la función acepte un argumento
+def consultar_movimientos(ventana_actual=None):
+    if ventana_actual is not None:
+        ventana_actual.destroy()
+    
     ventana_movimientos = tk.Toplevel()
     ventana_movimientos.title("Movimientos")
-    ventana_movimientos.geometry("400x300")
+    ventana_movimientos.geometry("620x600")  # Ajustar tamaño de la ventana principal
+    configurar_ventana(ventana_movimientos)
 
-    frame_movimientos = tk.Frame(ventana_movimientos)
-    frame_movimientos.pack(pady=10)
-
-    tk.Label(frame_movimientos, text="Tipo", font=FUENTE_TEXTO_TABLA, width=15).grid(row=0, column=0)
-    tk.Label(frame_movimientos, text="Monto", font=FUENTE_TEXTO_TABLA, width=15).grid(row=0, column=1)
+    tk.Label(ventana_movimientos, text="Movimientos", font=FUENTE_TEXTO).pack(pady=5)
 
     movimientos = cargar_movimientos()
+    # Este frame es para que la tabla quede centrada
+    frame_movimientos = tk.Frame(ventana_movimientos)  # Ajustar tamaño del marco
+    frame_movimientos.pack(pady=10)
+    
+    # Crear encabezados de la tabla
+    headers = ["OPERACION", "MONTO", "DETALLE"]
+    for i, header in enumerate(headers):
+        label = tk.Label(frame_movimientos, text=header, font=FUENTE_TEXTO_TABLA, width=20, anchor='w')
+        label.grid(row=0, column=i, padx=10, pady=5)
+    # Crear filas de la tabla: for i significa que se va a iterar por cada elemento en la lista movimientos
     for i, movimiento in enumerate(movimientos, start=1):
-        tipo = movimiento.get("tipo", "")
-        monto = movimiento.get("monto", 0)
-        tk.Label(frame_movimientos, text=tipo, font=FUENTE_TEXTO_TABLA, width=15).grid(row=i, column=0)
-        tk.Label(frame_movimientos, text=str(int(monto)), font=FUENTE_TEXTO_TABLA, width=15).grid(row=i, column=1)  # Mostrar monto como entero
+        operacion = movimiento['operacion']
+        monto = movimiento['monto']
+        detalle = movimiento['detalle']
+        
+        # Esto es para alinear el texto a la izquierda
+        tk.Label(frame_movimientos, text=operacion.capitalize(), font=FUENTE_TEXTO_TABLA, width=20, anchor='w').grid(row=i, column=0, padx=(0))
+        tk.Label(frame_movimientos, text=f"${monto}", font=FUENTE_TEXTO_TABLA, width=20, anchor='w').grid(row=i, column=1, padx=(0))
+        tk.Label(frame_movimientos, text=detalle, font=FUENTE_TEXTO_TABLA, width=20, anchor='w').grid(row=i, column=2, padx=(0))
 
-    tk.Button(ventana_movimientos, text="Cerrar", font=FUENTE_BOTON, bg="white", fg="#007BFF", width=ANCHO_BOTON, height=ALTO_BOTON, command=ventana_movimientos.destroy).pack(pady=10)
+    tk.Button(ventana_movimientos, text="Cerrar", font=FUENTE_BOTON, bg="white", fg=COLOR_BOTON, width=ANCHO_BOTON, height=ALTO_BOTON, command=ventana_movimientos.destroy).pack(pady=10)
 
-# Ventana para agregar un servicio
-def nueva_ventana_agregar_servicio():
-    ventana_agregar_servicio = tk.Toplevel()
-    ventana_agregar_servicio.title("Agregar Servicio")
-    ventana_agregar_servicio.geometry("350x200")
+def seleccionar_servicio(servicio):
+    global ventana_actual
+    if ventana_actual is not None:
+        ventana_actual.destroy()
+    ventana_actual = tk.Toplevel()
+    ventana_actual.title("Pagar Servicio")
+    configurar_ventana(ventana_actual)
 
-    tk.Label(ventana_agregar_servicio, text="Nombre del nuevo servicio:", font=FUENTE_TEXTO).pack(pady=10)
+    tk.Label(ventana_actual, text=f"Pagar {servicio}", font=FUENTE_TITULO).pack(pady=10)
+    tk.Label(ventana_actual, text="Ingrese el monto a pagar:", font=FUENTE_TEXTO).pack(pady=10)
+    entry_monto = tk.Entry(ventana_actual, font=FUENTE_TEXTO)
+    entry_monto.pack(pady=10)
 
-    entry_servicio = tk.Entry(ventana_agregar_servicio, font=FUENTE_TEXTO)
-    entry_servicio.pack(pady=10)
-
-    def agregar_servicio():
-        nuevo_servicio = entry_servicio.get().strip()
-        if nuevo_servicio:
-            servicios = cargar_servicios()
-            servicios.append(nuevo_servicio)
-            guardar_servicios(servicios)
-            ventana_agregar_servicio.destroy()
+    def pagar():
+        monto = entry_monto.get()
+        if monto.isdigit():
+            movimientos = cargar_movimientos()
+            movimientos.append({"operacion": "Pago", "monto": -int(monto), "detalle": f"{servicio}"})
+            guardar_movimientos(movimientos)
+            mostrar_saldo()
+            messagebox.showinfo("Éxito", "El servicio ha sido pagado correctamente.")
+            ventana_actual.destroy()
         else:
-            messagebox.showerror("Error", "Ingrese un nombre de servicio válido.")
+            messagebox.showerror("Error", "Por favor, ingrese un monto válido.")
 
-    tk.Button(ventana_agregar_servicio, text="Agregar", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=agregar_servicio).pack(pady=10)
-    tk.Button(ventana_agregar_servicio, text="Cancelar", font=FUENTE_BOTON, bg="white", fg="#007BFF", width=ANCHO_BOTON, height=ALTO_BOTON, command=ventana_agregar_servicio.destroy).pack(pady=10)
+    tk.Button(ventana_actual, text="Pagar", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=pagar).pack(pady=10)
 
-# Ventana para eliminar un servicio
-def nueva_ventana_eliminar_servicio():
-    ventana_eliminar_servicio = tk.Toplevel()
-    ventana_eliminar_servicio.title("Eliminar Servicio")
-    ventana_eliminar_servicio.geometry("350x200")
+def nueva_ventana_agregar_servicio(ventana_agregar):
+    ventana_agregar.title("Agregar Servicio")
+    configurar_ventana(ventana_agregar)
 
-    tk.Label(ventana_eliminar_servicio, text="Seleccione el servicio a eliminar:", font=FUENTE_TEXTO).pack(pady=10)
+    tk.Label(ventana_agregar, text="Nombre del nuevo servicio:", font=FUENTE_TEXTO).pack(pady=10)
+    entry_servicio = tk.Entry(ventana_agregar, font=FUENTE_TEXTO)
+    entry_servicio.pack(pady=10)
+    
+ #FUNCION PARA AGREGAR SERVICIO, SI ES NUEVO, LO AGREGA, 
+ #SI ESTA EN LA LISTA NO DEJA AGREGARLO
+ #se registra en la tabla movimientos
+    def agregar():
+        servicio = entry_servicio.get()
+        if servicio:
+            servicios = cargar_servicios()
+            if servicio not in servicios:
+                servicios.append(servicio)
+                movimientos = cargar_movimientos()
+                movimientos.append({"operacion": "Servicio agregado", "monto": 0, "detalle": f"{servicio}"})
+                guardar_movimientos(movimientos)
+                guardar_servicios(servicios)
+                messagebox.showinfo("Éxito", "El servicio ha sido agregado correctamente.")
+                ventana_agregar.destroy()
+            else:
+                messagebox.showerror("Error", "El servicio ya existe.")
+                ventana_agregar.destroy()
+        else:
+            messagebox.showerror("Error", "Por favor, ingrese un nombre de servicio.")
+           
+    tk.Button(ventana_agregar, text="Agregar", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=agregar).pack(pady=10)
+    
+def nueva_ventana_eliminar_servicio(ventana_eliminar):
+    ventana_eliminar.title("Eliminar Servicio")
+    configurar_ventana(ventana_eliminar)
+
+    tk.Label(ventana_eliminar, text="Seleccione el servicio a eliminar:", font=FUENTE_TEXTO).pack(pady=10)
 
     servicios = cargar_servicios()
 
-    def eliminar_servicio(servicio):
-        servicios.remove(servicio)
-        guardar_servicios(servicios)
-        ventana_eliminar_servicio.destroy()
-
     for servicio in servicios:
-        tk.Button(ventana_eliminar_servicio, text=servicio, font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=lambda s=servicio: eliminar_servicio(s)).pack(pady=5)
+        tk.Button(ventana_eliminar, 
+                  text=servicio, 
+                  font=FUENTE_BOTON, 
+                  bg=COLOR_BOTON, 
+                  fg="white", 
+                  width=ANCHO_BOTON,
+                  height=ALTO_BOTON,
+                  command=lambda 
+                  s=servicio: eliminar_servicio(s, ventana_eliminar)).pack(pady=5)
 
-    tk.Button(ventana_eliminar_servicio, text="Cancelar", font=FUENTE_BOTON, bg="white", fg="#007BFF", width=ANCHO_BOTON, height=ALTO_BOTON, command=ventana_eliminar_servicio.destroy).pack(pady=10)
+    tk.Button(ventana_eliminar, text="Cancelar", font=FUENTE_BOTON, bg="white", fg=COLOR_BOTON, width=ANCHO_BOTON, height=ALTO_BOTON, command=ventana_eliminar.destroy).pack(pady=10)
 
-# Función para seleccionar un servicio y pagar
-def seleccionar_servicio(servicio):
-    ventana_seleccionar_servicio = tk.Toplevel()
-    ventana_seleccionar_servicio.title(f"Pagar {servicio}")
-    ventana_seleccionar_servicio.geometry("350x200")
+def eliminar_servicio(servicio, ventana_eliminar):
+    servicios = cargar_servicios()
+    if servicio in servicios:
+        servicios.remove(servicio)
+        movimientos = cargar_movimientos()
+        movimientos.append({"operacion": "Eliminación de servicio", "monto": 0, "detalle": f"{servicio}"})
+        guardar_movimientos(movimientos)
+        guardar_servicios(servicios)
+        messagebox.showinfo("Éxito", "El servicio ha sido eliminado correctamente.")
+        ventana_eliminar.destroy()
+    else:
+        messagebox.showerror("Error", "El servicio no existe.")
 
-    tk.Label(ventana_seleccionar_servicio, text=f"Pago del servicio: {servicio}", font=FUENTE_TEXTO).pack(pady=10)
-    tk.Label(ventana_seleccionar_servicio, text="Ingrese el monto a pagar:", font=FUENTE_TEXTO).pack(pady=10)
+crear_ventana_principal()
 
-    entry_monto = tk.Entry(ventana_seleccionar_servicio, font=FUENTE_TEXTO)
-    entry_monto.pack(pady=10)
 
-    def pagar_servicio():
-        monto = entry_monto.get()
-        if monto.isdigit():
-            nuevo_movimiento = {
-                "tipo": "egreso",
-                "monto": int(monto)  # Convertir a entero
-            }
-            movimientos = cargar_movimientos()
-            movimientos.append(nuevo_movimiento)
-            guardar_movimientos(movimientos)
-            mostrar_saldo()
-            ventana_seleccionar_servicio.destroy()
-        else:
-            messagebox.showerror("Error", "Ingrese un monto válido.")
 
-    tk.Button(ventana_seleccionar_servicio, text="Pagar", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=pagar_servicio).pack(pady=10)
-    tk.Button(ventana_seleccionar_servicio, text="Cancelar", font=FUENTE_BOTON, bg="white", fg="#007BFF", width=ANCHO_BOTON, height=ALTO_BOTON, command=ventana_seleccionar_servicio.destroy).pack(pady=10)
 
-if __name__ == "__main__":
-    crear_ventana_principal()
