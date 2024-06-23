@@ -59,7 +59,7 @@ def mostrar_saldo():
     saldo_actual = sum(movimiento['monto'] for movimiento in movimientos if 'monto' in movimiento)
     label_saldo.config(text=f"Saldo: ${int(saldo_actual)}")  # Mostrar saldo como entero
 
-def configurar_ventana(ventana):
+def configurar_ventana(ventana, principal=False):
     # Configuración de redimensionamiento de la ventana principal
     ventana.resizable(True, True)  # Permitir redimensionamiento horizontal y vertical
     ventana.minsize(350, 550)  # Establecer tamaño mínimo para evitar que la ventana se haga demasiado pequeña
@@ -73,22 +73,20 @@ def configurar_ventana(ventana):
     label_logo_texto = tk.Label(frame_contenedor, image=logo, text="PayPy", font=FUENTE_LOGO, bg=COLOR_BOTON, fg="white", compound="top", padx=5, pady=10)
     label_logo_texto.image = logo  # Para evitar que el garbage collector elimine la imagen
     label_logo_texto.pack(pady=(10, 0))
-
+    
     frame_inferior = tk.Frame(ventana, bg=COLOR_BOTON, height=ALTURA_FRANJA)
     frame_inferior.pack(fill="x", side="bottom")
     frame_inferior.lower()  # lower es un método que coloca un widget debajo de otro
 
-    button_home = tk.Button(frame_inferior, text="HOME", font=FUENTE_BOTON, bg="white", fg=COLOR_BOTON, width=ANCHO_BOTON, height=ALTO_BOTON, state="disabled")
-    button_home.pack(side=tk.LEFT, padx=5, pady=5)
-
-    button_salir = tk.Button(frame_inferior, text="SALIR", font=FUENTE_BOTON, bg="white", fg=COLOR_BOTON, width=ANCHO_BOTON, height=ALTO_BOTON, command=ventana.destroy)
-    button_salir.pack(side=tk.RIGHT, padx=5, pady=5)
+    texto_boton = "SALIR" if principal else "HOME"
+    button_salir = tk.Button(frame_inferior, text=texto_boton, font=FUENTE_BOTON, bg="white", fg=COLOR_BOTON, width=ANCHO_BOTON, height=ALTO_BOTON, command=ventana.destroy)
+    button_salir.pack(pady=(10, 10))
 
 def crear_ventana_principal():
     global ventana, label_saldo
     ventana = tk.Tk()
     ventana.title("Billetera Virtual")
-    configurar_ventana(ventana)
+    configurar_ventana(ventana, principal=True)
 
     label_saldo = tk.Label(ventana, text="Saldo: $0", font=FUENTE_TITULO)
     label_saldo.pack(pady=(8, 10))
@@ -127,7 +125,7 @@ def abrir_ventana(funcion_ventana):
 
 def nueva_ventana_seleccionar_servicio(ventana_seleccionar):
     ventana_seleccionar.title("Seleccionar Servicio")
-    configurar_ventana(ventana_seleccionar)
+    configurar_ventana(ventana_seleccionar, principal=False)
 
     tk.Label(ventana_seleccionar, text="Seleccione el servicio a pagar:", font=FUENTE_TEXTO).pack(pady=10)
 
@@ -191,11 +189,12 @@ def consultar_movimientos(ventana_actual=None):
     for i, header in enumerate(headers):
         label = tk.Label(frame_movimientos, text=header, font=FUENTE_TEXTO_TABLA, width=20, anchor='w')
         label.grid(row=0, column=i, padx=10, pady=5)
-    # Crear filas de la tabla: for i significa que se va a iterar por cada elemento en la lista movimientos
+    
+    # Crear filas de la tabla
     for i, movimiento in enumerate(movimientos, start=1):
-        operacion = movimiento['operacion']
-        monto = movimiento['monto']
-        detalle = movimiento['detalle']
+        operacion = movimiento.get('operacion', 'Operación no registrada')  # Obtener la operación o un mensaje alternativo
+        monto = movimiento.get('monto', 'Monto no registrado')  # Obtener el monto o un mensaje alternativo
+        detalle = movimiento.get('detalle', 'Detalle no registrado')  # Obtener el detalle o un mensaje alternativo
         
         # Esto es para alinear el texto a la izquierda
         tk.Label(frame_movimientos, text=operacion.capitalize(), font=FUENTE_TEXTO_TABLA, width=20, anchor='w').grid(row=i, column=0, padx=(0))
@@ -203,7 +202,6 @@ def consultar_movimientos(ventana_actual=None):
         tk.Label(frame_movimientos, text=detalle, font=FUENTE_TEXTO_TABLA, width=20, anchor='w').grid(row=i, column=2, padx=(0))
 
     tk.Button(ventana_movimientos, text="Cerrar", font=FUENTE_BOTON, bg="white", fg=COLOR_BOTON, width=ANCHO_BOTON, height=ALTO_BOTON, command=ventana_movimientos.destroy).pack(pady=10)
-
 
 def seleccionar_servicio(servicio):
     global ventana_actual, saldo_actual
