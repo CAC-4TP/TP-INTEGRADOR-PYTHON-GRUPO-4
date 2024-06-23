@@ -1,10 +1,50 @@
-# CREAR BILLETERA VIRTUAL
+BILLETERA VIRTUAL
+#################
+
+DESCRIPCION DE PANTALLAS Y FUNCIONALIDADES: 
 
 # MENU PRINCIPAL: LOGO, SALDO, BOTON INGRESAR DINERO, 
-# BOTON PAGAR SERVICIO, BOTON MOVIMIENTOS, BOTON AGREGAR O ELIMINAR SERVICIO, BOTON SALIR
-# MENU DE SERVICIOS: SE LISTAN LOS SERVICIOS EN BOTONES: LUZ, AGUA, GAS Y 
-# HAY UN BOTON PARA INGRESAR EL MONTO LUEGO DE SELECCIONAR EL SERVICIO
-# OTRO BOTON QUE ME PERMITA AGREGAR OTRO SERVICIO O ELIMINARLO. LUEGO, VUELVE AL MENU PRINCIPAL
-# MENU DE MOVIMIENTOS: SE LISTAN LOS MOVIMIENTOS REALIZADOS EN UNA TABLA.
-# BOTON PARA VOLVER AL MENU PRINCIPAL
-# UTILIZAMOS JSON PARA GUARDAR LOS DATOS DE LOS SERVICIOS Y LOS MOVIMIENTOS
+
+BOTONES Y FUNCIONALIDADES:
+#########################  
+
+# BOTON INGRESAR DINERO: haciendo clic se abrira una ventana 
+para que podamos ingresar el monto y al aceptar se reflejará
+automaticamente en el saldo de la cuenta.
+
+# BOTON PAGAR SERVICIO: hacendo cic se abrira una ventana con 
+la lista de servicios para elegir, todos en botones para poder hacer clic en 
+alguno de ellos y asi ingresar en una nueva ventana el monto a pagar,
+luego se reflejara el descuento en el saldo.
+
+# BOTON AGREGAR SERVICIO: aqui nos abrira una ventana para que agreguemos el 
+nombre de un servicio, pero en caso de que este en la lista no permitirá
+realizar la transaccion, de lo contrario se confirmará que ha sido agregado.
+ 
+# BOTON ELIMINAR SERVICIO: haciendo clic en este boton se abrira una ventana
+con la lista de servicios para elegir, todos en botones para poder hacer clic en 
+alguno de ellos y asi eliminarlo de la lista.
+
+# BOTON MOVIMIENTOS: haciendo clic en este boton se abrira una ventana
+con los movimientos realizados en la cuenta, mostrando "operacion"
+(PAGO, INGRESO, ELIMINACION O AGREGADO DE NUEVO SERVICIO),
+"MONTO" (en caso de ingresos o pagos el monto en $, de lo contrario 
+solo mostrara $0), y "DETALLE" (el nombre del servicio en caso de que se haya 
+agregado uno nuevo o eliminado y cuando haya pagos o ingresos, ingreso o pago).
+
+# BOTON BENEFICIOS: una breve reseña de los beneficios de usar una billetera 
+virtual.
+
+# BOTONES SECUNDARIOS:
+  * BOTON HOME: redirige al menu PRINCIPAL
+  * BOTON SALIR: sale de la aplicacion.
+
+# BOTON SALIR: haciendo clic en este boton se cerrara la aplicacion.
+
+###############################################################################
+ARCHIVOS NECESARIOS PARA EL FUNCIONAMIENTO DE LA APP:
+
+* Fuentes para estilos de letra:
+PACIFICO Y ROBOTO
+
+################################################################################
