@@ -13,7 +13,7 @@ FUENTE_TITULO_BENEFICIOS = ("Ubuntu", 12, "bold underline")  # Subrayar el títu
 FUENTE_BENEFICIOS = ("Ubuntu", 10)
 COLOR_CUADROS_BENEFICIOS = "#e1e1f9"
 
-FUENTE_TEXTO_TABLA = ("Ubuntu", 12, "bold")
+FUENTE_TEXTO_TABLA = ("Ubuntu", 10, "bold")
 
 FUENTE_BOTON = ("Ubuntu", 10, "bold")
 COLOR_BOTON = "#007BFF"
@@ -117,16 +117,20 @@ def crear_ventana_principal():
 
     button_agregar_servicio = tk.Button(frame_botones_principales, text="Agregar \n servicio", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=lambda: abrir_ventana(nueva_ventana_agregar_servicio))
     button_agregar_servicio.grid(row=1, column=1, padx=5, pady=2)
+    
+    button_actualizar_servicio = tk.Button(frame_botones_principales, text="Actualizar \n servicio", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=lambda: abrir_ventana(nueva_ventana_actualizar_servicio))
+    button_actualizar_servicio.grid(row=2, column=0, padx=5, pady=2)
+
+    button_eliminar_servicio = tk.Button(frame_botones_principales, text="Eliminar \n servicio", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=lambda: abrir_ventana(nueva_ventana_eliminar_servicio))
+    button_eliminar_servicio.grid(row=2, column=1, padx=5, pady=2)
 
     button_beneficios = tk.Button(frame_botones_principales, text="Beneficios", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=lambda: abrir_ventana(nueva_ventana_beneficios))
-    button_beneficios.grid(row=2, column=1, padx=5, pady=2)
-    
-    button_eliminar_servicio = tk.Button(frame_botones_principales, text="Eliminar \n servicio", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=lambda: abrir_ventana(nueva_ventana_eliminar_servicio))
-    button_eliminar_servicio.grid(row=2, column=0, padx=5, pady=2)
+    button_beneficios.grid(row=3, column=0, columnspan=2, padx=5, pady=2)
 
     mostrar_saldo()  # Actualizar el saldo al iniciar la aplicación
 
-    ventana.mainloop() # Ejecuta el bucle principal de la ventana
+    ventana.mainloop()  # Ejecuta el bucle principal de la ventana
+
 
 # Abre una nueva ventana secundaria y cierra la anterior si existe.
 def abrir_ventana(funcion_ventana):
@@ -322,6 +326,75 @@ def eliminar_servicio(servicio, ventana_eliminar):
         ventana_eliminar.destroy()
     else:
         messagebox.showerror("Error", "El servicio no existe.")    
+        
+# actualizar servicios
+def abrir_ventana(funcion_ventana):
+    global ventana_actual
+    if ventana_actual is not None:
+        ventana_actual.destroy()
+    ventana_actual = tk.Toplevel()
+    funcion_ventana(ventana_actual)
+    ventana_actual.protocol("WM_DELETE_WINDOW", lambda: on_closing(funcion_ventana))
+
+def on_closing(funcion_ventana):
+    global ventana_actual
+    ventana_actual.destroy()
+    ventana_actual = None
+
+def nueva_ventana_actualizar_servicio(ventana_actualizar):
+    ventana_actualizar.title("Actualizar Servicio")
+    configurar_ventana(ventana_actualizar)
+
+    tk.Label(ventana_actualizar, text="Seleccione el servicio a actualizar:", font=FUENTE_TEXTO).pack(pady=10)
+
+    servicios = cargar_servicios()
+
+    for servicio in servicios:
+        tk.Button(ventana_actualizar,
+                  text=servicio,
+                  font=FUENTE_BOTON,
+                  bg=COLOR_BOTON,
+                  fg="white",
+                  width=ANCHO_BOTON,
+                  height=ALTO_BOTON,
+                  command=lambda s=servicio: abrir_ventana(lambda v: ventana_actualizar_servicio(v, s))).pack(pady=5)
+
+    tk.Button(ventana_actualizar, text="Cancelar", font=FUENTE_BOTON, bg="white", fg=COLOR_BOTON, width=ANCHO_BOTON,
+              height=ALTO_BOTON, command=ventana_actualizar.destroy).pack(pady=10)
+
+def ventana_actualizar_servicio(ventana_actualizar, servicio):
+    ventana_actualizar.title(f"Actualizar {servicio}")
+    configurar_ventana(ventana_actualizar)
+
+    tk.Label(ventana_actualizar, text=f"Ingrese el nuevo nombre para {servicio}:", font=FUENTE_TEXTO).pack(pady=10)
+    entry_nuevo_servicio = tk.Entry(ventana_actualizar, font=FUENTE_TEXTO)
+    entry_nuevo_servicio.pack(pady=10)
+
+    def actualizar():
+        nuevo_servicio = entry_nuevo_servicio.get()
+        if nuevo_servicio:
+            servicios = cargar_servicios()
+            if servicio in servicios:
+                servicios.remove(servicio)
+                servicios.append(nuevo_servicio)
+                guardar_servicios(servicios)
+
+                # AGREGAR EN los movimientos que corresponden al servicio actualizado
+                # OPERACION: ACTUALIZACION, MONTO: 0. DETALLE: SERVICIO ACTUALIZADO A NUEVO SERVICIO
+                movimientos = cargar_movimientos()
+                movimientos.append({"operacion": "Actualización", "monto": 0, "detalle": f"{servicio} cambió a {nuevo_servicio}"})
+                guardar_movimientos(movimientos)
+                
+            
+
+                messagebox.showinfo("Éxito", "El servicio ha sido actualizado correctamente.")
+                ventana_actualizar.destroy()  # Cerrar la ventana de actualización
+            else:
+                messagebox.showerror("Error", "El servicio no existe.")
+        else:
+            messagebox.showerror("Error", "Por favor, ingrese un nombre válido para el servicio.")
+
+    tk.Button(ventana_actualizar, text="Actualizar", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=actualizar).pack(pady=10)
 
 def nueva_ventana_beneficios(ventana_beneficios):
     ventana_beneficios.title("Beneficios")
