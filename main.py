@@ -27,6 +27,9 @@ ALTURA_FRANJA = 80
 ventana_actual = None
 
 # Funciones para manejar los movimientos: archivos json
+
+# Intenta leer y cargar los movimientos desde un archivo JSON.
+# Si el archivo no existe o está malformado, devuelve una lista vacía.
 def cargar_movimientos():
     try:
         with open('movimientos.json', 'r') as archivo:
@@ -35,6 +38,7 @@ def cargar_movimientos():
         movimientos = []
     return movimientos
 
+#Guarda la lista de movimientos en un archivo JSON.
 def guardar_movimientos(movimientos):
     with open('movimientos.json', 'w') as archivo:
         json.dump(movimientos, archivo)
@@ -53,13 +57,18 @@ def guardar_servicios(servicios):
     with open('servicios.json', 'w') as archivo:
         json.dump(servicios, archivo)
 
+# Calcula y muestra el saldo actual sumando todos los montos 
+# de los movimientos cargados desde el archivo JSON.
 def mostrar_saldo():
     global saldo_actual# Variable global cumple la funcion de almacenar el saldo actual
-    movimientos = cargar_movimientos()
-    saldo_actual = sum(movimiento['monto'] for movimiento in movimientos if 'monto' in movimiento)
+    movimientos = cargar_movimientos() # Carga los movimientos desde el archivo JSON
+    saldo_actual = sum(movimiento['monto'] for movimiento in movimientos if 'monto' in movimiento) 
+    # Suma los montos de los movimientos que tengan el atributo 'monto' 
+    # y los almacena en la variable global saldo_actual
     label_saldo.config(text=f"Saldo: ${int(saldo_actual)}")  # Mostrar saldo como entero
 
-def configurar_ventana(ventana, principal=False):
+# Agrega un nuevo movimiento a la lista de movimientos.
+def configurar_ventana(ventana, principal=False): # esta en false porque no es la ventana principal
     # Configuración de redimensionamiento de la ventana principal
     ventana.resizable(True, True)  # Permitir redimensionamiento horizontal y vertical
     ventana.minsize(350, 550)  # Establecer tamaño mínimo para evitar que la ventana se haga demasiado pequeña
@@ -81,7 +90,10 @@ def configurar_ventana(ventana, principal=False):
     texto_boton = "SALIR" if principal else "HOME"
     button_salir = tk.Button(frame_inferior, text=texto_boton, font=FUENTE_BOTON, bg="white", fg=COLOR_BOTON, width=ANCHO_BOTON, height=ALTO_BOTON, command=ventana.destroy)
     button_salir.pack(pady=(10, 10))
-
+    
+# Configura y muestra la ventana principal de la aplicación 
+# con botones para diferentes funcionalidades.
+# Llama a mostrar_saldo para actualizar el saldo al iniciar.
 def crear_ventana_principal():
     global ventana, label_saldo
     ventana = tk.Tk()
@@ -114,8 +126,9 @@ def crear_ventana_principal():
 
     mostrar_saldo()  # Actualizar el saldo al iniciar la aplicación
 
-    ventana.mainloop()
+    ventana.mainloop() # Ejecuta el bucle principal de la ventana
 
+# Abre una nueva ventana secundaria y cierra la anterior si existe.
 def abrir_ventana(funcion_ventana):
     global ventana_actual
     if ventana_actual is not None:  # Cerrar la ventana actual si existe
@@ -123,14 +136,16 @@ def abrir_ventana(funcion_ventana):
     ventana_actual = tk.Toplevel()
     funcion_ventana(ventana_actual)
 
+# Configura una ventana para seleccionar un servicio a pagar.
 def nueva_ventana_seleccionar_servicio(ventana_seleccionar):
     ventana_seleccionar.title("Seleccionar Servicio")
     configurar_ventana(ventana_seleccionar, principal=False)
 
     tk.Label(ventana_seleccionar, text="Seleccione el servicio a pagar:", font=FUENTE_TEXTO).pack(pady=10)
-
+    # Cargar los servicios disponibles desde el archivo JSON
     servicios = cargar_servicios()
 
+    # Crear botones para cada servicio
     for servicio in servicios:
         tk.Button(ventana_seleccionar, 
                   text=servicio, 
@@ -140,7 +155,8 @@ def nueva_ventana_seleccionar_servicio(ventana_seleccionar):
                   width=ANCHO_BOTON,
                   height=ALTO_BOTON,
                   command=lambda 
-                  s=servicio: seleccionar_servicio(s)).pack(pady=5)
+                  s=servicio: seleccionar_servicio(s)).pack(pady=5) 
+        # Modificación para pasar el servicio como argumento
 
     tk.Button(ventana_seleccionar, text="Cancelar", font=FUENTE_BOTON, bg="white", fg=COLOR_BOTON, width=ANCHO_BOTON, height=ALTO_BOTON, command=ventana_seleccionar.destroy).pack(pady=10)
 
@@ -152,12 +168,15 @@ def nueva_ventana_ingresar_dinero(ventana_ingresar):
     entry_monto = tk.Entry(ventana_ingresar, font=FUENTE_TEXTO)
     entry_monto.pack(pady=10)
 
+    # Incluye la lógica para guardar el ingreso y actualizar el saldo.
     def guardar_ingreso():
         monto = entry_monto.get()
-        if monto.isdigit():
-            movimientos = cargar_movimientos()
+        if monto.isdigit(): # si el valor ingresado es un número entero
+            movimientos = cargar_movimientos() # cargar los movimientos actuales
+            
+            # Agregar el ingreso al final de la lista de movimientos
             movimientos.append({"operacion": "Ingreso", "monto": int(monto), "detalle": "Dinero acreditado"})
-            guardar_movimientos(movimientos)
+            guardar_movimientos(movimientos) # guardar los movimientos actualizados
             mostrar_saldo()
             messagebox.showinfo("Éxito", "El dinero ha sido ingresado correctamente.")
             ventana_ingresar.destroy()
@@ -167,7 +186,8 @@ def nueva_ventana_ingresar_dinero(ventana_ingresar):
 
     tk.Button(ventana_ingresar, text="Guardar", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=guardar_ingreso).pack(pady=10)
 
-# Modificación para que la función acepte un argumento
+# Configura una ventana para consultar los movimientos realizados.
+# Muestra una tabla con los movimientos.
 def consultar_movimientos(ventana_actual=None):
     if ventana_actual is not None:
         ventana_actual.destroy()
@@ -203,6 +223,8 @@ def consultar_movimientos(ventana_actual=None):
 
     tk.Button(ventana_movimientos, text="Cerrar", font=FUENTE_BOTON, bg="white", fg=COLOR_BOTON, width=ANCHO_BOTON, height=ALTO_BOTON, command=ventana_movimientos.destroy).pack(pady=10)
 
+# Configura una ventana para pagar un servicio seleccionado.
+# Incluye la lógica para pagar el servicio y actualizar el saldo.
 def seleccionar_servicio(servicio):
     global ventana_actual, saldo_actual
     if ventana_actual is not None:
@@ -216,6 +238,9 @@ def seleccionar_servicio(servicio):
     entry_monto = tk.Entry(ventana_actual, font=FUENTE_TEXTO)
     entry_monto.pack(pady=10)
 
+    # Esta funcion se encarga de pagar el servicio, 
+    # si el monto es menor o igual al saldo actual, se actualiza el saldo y se guarda el movimiento
+    # si el monto es mayor al saldo actual, no se actualiza el saldo y se muestra un mensaje de error
     def pagar():
         global saldo_actual
         monto = float(entry_monto.get())
