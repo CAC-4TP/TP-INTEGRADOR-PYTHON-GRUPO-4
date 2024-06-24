@@ -9,7 +9,7 @@ FUENTE_TEXTO = ("Ubuntu", 16)
 
 COLOR_PRINCIPAL = "#000000" 
 
-FUENTE_TITULO_BENEFICIOS = ("Ubuntu", 12, "bold underline")  # Subrayar el título de beneficios
+FUENTE_TITULO_BENEFICIOS = ("Ubuntu", 12, "bold underline") # Subrayar el título de beneficios
 FUENTE_BENEFICIOS = ("Ubuntu", 10)
 COLOR_CUADROS_BENEFICIOS = "#e1e1f9"
 
@@ -68,7 +68,7 @@ def mostrar_saldo():
     label_saldo.config(text=f"Saldo: ${int(saldo_actual)}")  # Mostrar saldo como entero
 
 # Agrega un nuevo movimiento a la lista de movimientos.
-def configurar_ventana(ventana, principal=False): # esta en false porque no es la ventana principal
+def configurar_ventana(ventana, principal=False): 
     # Configuración de redimensionamiento de la ventana principal
     ventana.resizable(True, True)  # Permitir redimensionamiento horizontal y vertical
     ventana.minsize(350, 550)  # Establecer tamaño mínimo para evitar que la ventana se haga demasiado pequeña
@@ -160,15 +160,15 @@ def nueva_ventana_seleccionar_servicio(ventana_seleccionar):
                   height=ALTO_BOTON,
                   command=lambda 
                   s=servicio: seleccionar_servicio(s)).pack(pady=5) 
-        # Modificación para pasar el servicio como argumento
-
+    
     tk.Button(ventana_seleccionar, text="Cancelar", font=FUENTE_BOTON, bg="white", fg=COLOR_BOTON, width=ANCHO_BOTON, height=ALTO_BOTON, command=ventana_seleccionar.destroy).pack(pady=10)
 
+# Esta es la ventana que se abre cuando elijo el boton de ingresar dinero
 def nueva_ventana_ingresar_dinero(ventana_ingresar):
     ventana_ingresar.title("Ingresar Dinero")
     configurar_ventana(ventana_ingresar)
 
-    tk.Label(ventana_ingresar, text="Ingrese el monto:", font=FUENTE_TEXTO).pack(pady=10)
+    tk.Label(ventana_ingresar, text="Ingrese el monto:", font=FUENTE_TEXTO).pack(pady=10)# este es el label que me permite poner el monto
     entry_monto = tk.Entry(ventana_ingresar, font=FUENTE_TEXTO)
     entry_monto.pack(pady=10)
 
@@ -188,7 +188,7 @@ def nueva_ventana_ingresar_dinero(ventana_ingresar):
         else:
             messagebox.showerror("Error", "Por favor, ingrese un monto válido.")
 
-    tk.Button(ventana_ingresar, text="Guardar", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=guardar_ingreso).pack(pady=10)
+    tk.Button(ventana_ingresar, text="Confirmar", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=guardar_ingreso).pack(pady=10)
 
 # Configura una ventana para consultar los movimientos realizados.
 # Muestra una tabla con los movimientos.
@@ -201,7 +201,7 @@ def consultar_movimientos(ventana_actual=None):
     ventana_movimientos.geometry("620x600")  # Ajustar tamaño de la ventana principal
     configurar_ventana(ventana_movimientos)
 
-    tk.Label(ventana_movimientos, text="Movimientos", font=FUENTE_TEXTO).pack(pady=5)
+    tk.Label(ventana_movimientos, text="Movimientos", font=FUENTE_TEXTO).pack(pady=5)# este label es para poner el titulo de la ventana
 
     movimientos = cargar_movimientos()
     # Este frame es para que la tabla quede centrada
@@ -225,13 +225,13 @@ def consultar_movimientos(ventana_actual=None):
         tk.Label(frame_movimientos, text=f"${monto}", font=FUENTE_TEXTO_TABLA, width=20, anchor='w').grid(row=i, column=1, padx=(0))
         tk.Label(frame_movimientos, text=detalle, font=FUENTE_TEXTO_TABLA, width=20, anchor='w').grid(row=i, column=2, padx=(0))
 
-    tk.Button(ventana_movimientos, text="Cerrar", font=FUENTE_BOTON, bg="white", fg=COLOR_BOTON, width=ANCHO_BOTON, height=ALTO_BOTON, command=ventana_movimientos.destroy).pack(pady=10)
+    # tk.Button(ventana_movimientos, text="Cerrar", font=FUENTE_BOTON, bg="white", fg=COLOR_BOTON, width=ANCHO_BOTON, height=ALTO_BOTON, command=ventana_movimientos.destroy).pack(pady=10)
 
 # Configura una ventana para pagar un servicio seleccionado.
 # Incluye la lógica para pagar el servicio y actualizar el saldo.
 def seleccionar_servicio(servicio):
     global ventana_actual, saldo_actual
-    if ventana_actual is not None:
+    if ventana_actual is not None: # Si hay una ventana abierta, cerrarla
         ventana_actual.destroy()
     ventana_actual = tk.Toplevel()
     ventana_actual.title("Pagar Servicio")
@@ -262,6 +262,7 @@ def seleccionar_servicio(servicio):
 
     tk.Button(ventana_actual, text="Pagar", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=pagar).pack(pady=10)
 
+# Esta ventana permite agregar un nuevo servicio a la lista de servicios.
 def nueva_ventana_agregar_servicio(ventana_agregar):
     ventana_agregar.title("Agregar Servicio")
     configurar_ventana(ventana_agregar)
@@ -271,28 +272,38 @@ def nueva_ventana_agregar_servicio(ventana_agregar):
     entry_servicio.pack(pady=10)
     
  #FUNCION PARA AGREGAR SERVICIO, SI ES NUEVO, LO AGREGA, 
- #SI ESTA EN LA LISTA NO DEJA AGREGARLO
- #se registra en la tabla movimientos
+ #SI ESTA EN LA LISTA NO DEJA AGREGARLO, sin importar si esta en mayuscula o minuscula.
+ # Por eso se puso un condicional que convierte todo a minuscula para que sea case-insensitive
+ 
     def agregar():
         servicio = entry_servicio.get()
         if servicio:
             servicios = cargar_servicios()
-            if servicio not in servicios:
+             # Convertir todos los servicios existentes a minúsculas para que sean case-insensitive
+            servicios_lower = [s.lower() for s in servicios] 
+             # Convierte el servicio ingresado a minúsculas para compararlo de manera case-insensitive
+            if servicio.lower() not in servicios_lower: # Si el servicio no existe, lo agrega
                 servicios.append(servicio)
-                movimientos = cargar_movimientos()
-                movimientos.append({"operacion": "Servicio agregado", "monto": 0, "detalle": f"{servicio}"})
+                #se registra en la tabla movimientos
+                movimientos = cargar_movimientos()  
+                movimientos.append({"operacion": "Nuevo servicio", "monto": 0, "detalle": f"{servicio}"})
                 guardar_movimientos(movimientos)
                 guardar_servicios(servicios)
                 messagebox.showinfo("Éxito", "El servicio ha sido agregado correctamente.")
                 ventana_agregar.destroy()
+
             else:
                 messagebox.showerror("Error", "El servicio ya existe.")
                 ventana_agregar.destroy()
+                
         else:
-            messagebox.showerror("Error", "Por favor, ingrese un nombre de servicio.")
-           
+            messagebox.showerror("Error", "Debe ingresar un nombre de servicio.")
+            ventana_agregar.destroy()
+            
+            
     tk.Button(ventana_agregar, text="Agregar", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=agregar).pack(pady=10)
-    
+
+# Esta ventana permite eliminar un servicio de la lista de servicios.
 def nueva_ventana_eliminar_servicio(ventana_eliminar):
     ventana_eliminar.title("Eliminar Servicio")
     configurar_ventana(ventana_eliminar)
@@ -300,20 +311,14 @@ def nueva_ventana_eliminar_servicio(ventana_eliminar):
     tk.Label(ventana_eliminar, text="Seleccione el servicio a eliminar:", font=FUENTE_TEXTO).pack(pady=10)
 
     servicios = cargar_servicios()
-
+    # Crear un botón para cada servicio
     for servicio in servicios:
-        tk.Button(ventana_eliminar, 
-                  text=servicio, 
-                  font=FUENTE_BOTON, 
-                  bg=COLOR_BOTON, 
-                  fg="white", 
-                  width=ANCHO_BOTON,
-                  height=ALTO_BOTON,
-                  command=lambda 
-                  s=servicio: eliminar_servicio(s, ventana_eliminar)).pack(pady=5)
+        tk.Button(ventana_eliminar, text=servicio, font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, 
+                  height=ALTO_BOTON, command=lambda s=servicio: eliminar_servicio(s, ventana_eliminar)).pack(pady=5)
 
     tk.Button(ventana_eliminar, text="Cancelar", font=FUENTE_BOTON, bg="white", fg=COLOR_BOTON, width=ANCHO_BOTON, height=ALTO_BOTON, command=ventana_eliminar.destroy).pack(pady=10)
 
+# FUNCION PARA ELIMINAR SERVICIO
 def eliminar_servicio(servicio, ventana_eliminar):
     servicios = cargar_servicios()
     if servicio in servicios:
@@ -335,7 +340,7 @@ def abrir_ventana(funcion_ventana):
     ventana_actual = tk.Toplevel()
     funcion_ventana(ventana_actual)
     ventana_actual.protocol("WM_DELETE_WINDOW", lambda: on_closing(funcion_ventana))
-
+# Esta funcion on_closing se encarga de cerrar la ventana actual y liberar el recurso de la ventana.
 def on_closing(funcion_ventana):
     global ventana_actual
     ventana_actual.destroy()
@@ -350,18 +355,13 @@ def nueva_ventana_actualizar_servicio(ventana_actualizar):
     servicios = cargar_servicios()
 
     for servicio in servicios:
-        tk.Button(ventana_actualizar,
-                  text=servicio,
-                  font=FUENTE_BOTON,
-                  bg=COLOR_BOTON,
-                  fg="white",
-                  width=ANCHO_BOTON,
-                  height=ALTO_BOTON,
-                  command=lambda s=servicio: abrir_ventana(lambda v: ventana_actualizar_servicio(v, s))).pack(pady=5)
+        tk.Button(ventana_actualizar, text=servicio, font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, 
+             height=ALTO_BOTON, command=lambda s=servicio: abrir_ventana(lambda v: ventana_actualizar_servicio(v, s))).pack(pady=5)
 
     tk.Button(ventana_actualizar, text="Cancelar", font=FUENTE_BOTON, bg="white", fg=COLOR_BOTON, width=ANCHO_BOTON,
               height=ALTO_BOTON, command=ventana_actualizar.destroy).pack(pady=10)
 
+# Esta ventana permite actualizar un servicio de la lista de servicios, si cambio de nombre por ejemplo, permite modificarlo
 def ventana_actualizar_servicio(ventana_actualizar, servicio):
     ventana_actualizar.title(f"Actualizar {servicio}")
     configurar_ventana(ventana_actualizar)
@@ -383,10 +383,8 @@ def ventana_actualizar_servicio(ventana_actualizar, servicio):
                 # OPERACION: ACTUALIZACION, MONTO: 0. DETALLE: SERVICIO ACTUALIZADO A NUEVO SERVICIO
                 movimientos = cargar_movimientos()
                 movimientos.append({"operacion": "Actualización", "monto": 0, "detalle": f"{servicio} cambió a {nuevo_servicio}"})
-                guardar_movimientos(movimientos)
-                
+                guardar_movimientos(movimientos)               
             
-
                 messagebox.showinfo("Éxito", "El servicio ha sido actualizado correctamente.")
                 ventana_actualizar.destroy()  # Cerrar la ventana de actualización
             else:
@@ -429,8 +427,6 @@ def nueva_ventana_beneficios(ventana_beneficios):
     frame_botones.lower()
 
     ventana_beneficios.mainloop()
-
-
 
 crear_ventana_principal()
 
