@@ -228,6 +228,10 @@ def consultar_movimientos(ventana_actual=None):
 
     movimientos = cargar_movimientos()
     
+     # Ordenar los movimientos desde los más recientes hasta los menos recientes
+    movimientos_ordenados = sorted(movimientos, key=lambda x: x['timestamp'], reverse=True)
+
+    
     # Crear un canvas para contener el frame con los movimientos y una scrollbar
     canvas = tk.Canvas(ventana_movimientos)
     frame_movimientos = tk.Frame(canvas)
@@ -249,11 +253,11 @@ def consultar_movimientos(ventana_actual=None):
         label = tk.Label(frame_movimientos, text=header, font=FUENTE_TEXTO_TABLA, width=20, anchor='w')
         label.grid(row=0, column=i, padx=10, pady=5)
     
-    # Crear filas de la tabla
-    for i, movimiento in enumerate(movimientos, start=1):
-        operacion = movimiento.get('operacion', 'Operación no registrada')  # Obtener la operación o un mensaje alternativo
-        monto = movimiento.get('monto', 'Monto no registrado')  # Obtener el monto o un mensaje alternativo
-        detalle = movimiento.get('detalle', 'Detalle no registrado')  # Obtener el detalle o un mensaje alternativo
+      # Crear filas de la tabla con los movimientos ordenados
+    for i, movimiento in enumerate(movimientos_ordenados, start=1):
+        operacion = movimiento.get('operacion', 'Operación no registrada')
+        monto = movimiento.get('monto', 'Monto no registrado')
+        detalle = movimiento.get('detalle', 'Detalle no registrado')
         
         # Esto es para alinear el texto a la izquierda
         tk.Label(frame_movimientos, text=operacion.capitalize(), font=FUENTE_TEXTO_TABLA, width=20, anchor='w').grid(row=i, column=0, padx=(0))
@@ -279,9 +283,19 @@ def seleccionar_servicio(servicio):
     # Esta funcion se encarga de pagar el servicio, 
     # si el monto es menor o igual al saldo actual, se actualiza el saldo y se guarda el movimiento
     # si el monto es mayor al saldo actual, no se actualiza el saldo y se muestra un mensaje de error
+    
     def pagar():
         global saldo_actual
-        monto = float(entry_monto.get())
+        monto_str = entry_monto.get()
+        if not monto_str.replace('.', '', 1).isdigit():
+            messagebox.showerror("Error", "El monto debe ser numérico.")
+
+     
+            ventana_actual.destroy()
+            return
+        monto = float(monto_str)
+        
+
         if monto <= saldo_actual:
             saldo_actual -= monto
             movimientos = cargar_movimientos()
