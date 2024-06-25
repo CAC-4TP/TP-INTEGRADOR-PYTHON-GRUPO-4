@@ -70,8 +70,7 @@ def guardar_servicios(servicios):
 #############################################################################################
 # Función mostrar_saldo
 #############################################################################################
-# Calcula el saldo actual sumando los montos de movimientos cargados desde 'movimientos.json'.
-# Actualiza el texto de un label para mostrar el saldo en la interfaz gráfica.
+
 # Calcula y muestra el saldo: Lee los movimientos, 
 # suma los montos y actualiza la interfaz con el saldo calculado.
 
@@ -181,10 +180,7 @@ def nueva_ventana_seleccionar_servicio(ventana_seleccionar):
     for servicio in servicios:
      tk.Button(ventana_seleccionar, text=servicio, font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white",
         width=ANCHO_BOTON, height=ALTO_BOTON, command=lambda 
-        s=servicio: seleccionar_servicio(s)).pack(pady=5) 
-    
-     tk.Button(ventana_seleccionar, text="Cancelar", font=FUENTE_BOTON, bg="white", fg=COLOR_BOTON,
-              width=ANCHO_BOTON, height=ALTO_BOTON, command=ventana_seleccionar.destroy).pack(pady=10)
+        s=servicio: seleccionar_servicio(s)).pack(pady=5)
     
 #########################################################################################################
 # Crea una ventana para ingresar dinero con validación de entrada y actualización del saldo.
@@ -215,20 +211,7 @@ def nueva_ventana_ingresar_dinero(ventana_ingresar):
 
     tk.Button(ventana_ingresar, text="Confirmar", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=guardar_ingreso).pack(pady=10)
 
-# Intenta leer y cargar los movimientos desde un archivo JSON.
-# Si el archivo no existe o está malformado, devuelve una lista vacía.
-def cargar_movimientos():
-    try:
-        with open('movimientos.json', 'r') as archivo:
-            movimientos = json.load(archivo)
-    except (FileNotFoundError, json.JSONDecodeError):
-        movimientos = []
-    return movimientos
 
-#Guarda la lista de movimientos en un archivo JSON.
-def guardar_movimientos(movimientos):
-    with open('movimientos.json', 'w') as archivo:
-        json.dump(movimientos, archivo)
 
 # Configura una ventana para consultar los movimientos realizados.
 # Muestra una tabla con los movimientos.
@@ -244,6 +227,10 @@ def consultar_movimientos(ventana_actual=None):
     tk.Label(ventana_movimientos, text="Movimientos", font=FUENTE_TEXTO).pack(pady=5)# este label es para poner el titulo de la ventana
 
     movimientos = cargar_movimientos()
+    
+     # Ordenar los movimientos desde los más recientes hasta los menos recientes
+    movimientos_ordenados = sorted(movimientos, key=lambda x: x['timestamp'], reverse=True)
+
     
     # Crear un canvas para contener el frame con los movimientos y una scrollbar
     canvas = tk.Canvas(ventana_movimientos)
@@ -266,18 +253,17 @@ def consultar_movimientos(ventana_actual=None):
         label = tk.Label(frame_movimientos, text=header, font=FUENTE_TEXTO_TABLA, width=20, anchor='w')
         label.grid(row=0, column=i, padx=10, pady=5)
     
-    # Crear filas de la tabla
-    for i, movimiento in enumerate(movimientos, start=1):
-        operacion = movimiento.get('operacion', 'Operación no registrada')  # Obtener la operación o un mensaje alternativo
-        monto = movimiento.get('monto', 'Monto no registrado')  # Obtener el monto o un mensaje alternativo
-        detalle = movimiento.get('detalle', 'Detalle no registrado')  # Obtener el detalle o un mensaje alternativo
+      # Crear filas de la tabla con los movimientos ordenados
+    for i, movimiento in enumerate(movimientos_ordenados, start=1):
+        operacion = movimiento.get('operacion', 'Operación no registrada')
+        monto = movimiento.get('monto', 'Monto no registrado')
+        detalle = movimiento.get('detalle', 'Detalle no registrado')
         
         # Esto es para alinear el texto a la izquierda
         tk.Label(frame_movimientos, text=operacion.capitalize(), font=FUENTE_TEXTO_TABLA, width=20, anchor='w').grid(row=i, column=0, padx=(0))
         tk.Label(frame_movimientos, text=f"${monto}", font=FUENTE_TEXTO_TABLA, width=20, anchor='w').grid(row=i, column=1, padx=(0))
         tk.Label(frame_movimientos, text=detalle, font=FUENTE_TEXTO_TABLA, width=20, anchor='w').grid(row=i, column=2, padx=(0))
 
-    # tk.Button(ventana_movimientos, text="Cerrar", font=FUENTE_BOTON, bg="white", fg=COLOR_BOTON, width=ANCHO_BOTON, height=ALTO_BOTON, command=ventana_movimientos.destroy).pack(pady=10)
 
 # Configura una ventana para pagar un servicio seleccionado.
 # Incluye la lógica para pagar el servicio y actualizar el saldo.
@@ -297,9 +283,19 @@ def seleccionar_servicio(servicio):
     # Esta funcion se encarga de pagar el servicio, 
     # si el monto es menor o igual al saldo actual, se actualiza el saldo y se guarda el movimiento
     # si el monto es mayor al saldo actual, no se actualiza el saldo y se muestra un mensaje de error
+    
     def pagar():
         global saldo_actual
-        monto = float(entry_monto.get())
+        monto_str = entry_monto.get()
+        if not monto_str.replace('.', '', 1).isdigit():
+            messagebox.showerror("Error", "El monto debe ser numérico.")
+
+     
+            ventana_actual.destroy()
+            return
+        monto = float(monto_str)
+        
+
         if monto <= saldo_actual:
             saldo_actual -= monto
             movimientos = cargar_movimientos()
@@ -344,11 +340,11 @@ def nueva_ventana_agregar_servicio(ventana_agregar):
                 messagebox.showinfo("Éxito", "El servicio ha sido agregado correctamente.")
                 ventana_agregar.destroy()
 
-            else:
+            else:# SI SE REPITE ME SALE EL MJE DE ERROR
                 messagebox.showerror("Error", "El servicio ya existe.")
                 ventana_agregar.destroy()
                 
-        else:
+        else:# SI ESTA VACÍO ME SALE EL MJE DE ERROR
             messagebox.showerror("Error", "Debe ingresar un nombre de servicio.")
             ventana_agregar.destroy()
             
@@ -363,12 +359,11 @@ def nueva_ventana_eliminar_servicio(ventana_eliminar):
     tk.Label(ventana_eliminar, text="Seleccione el servicio a eliminar:", font=FUENTE_TEXTO).pack(pady=10)
 
     servicios = cargar_servicios()
-    # Crear un botón para cada servicio
+  
     for servicio in servicios:
         tk.Button(ventana_eliminar, text=servicio, font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, 
                   height=ALTO_BOTON, command=lambda s=servicio: eliminar_servicio(s, ventana_eliminar)).pack(pady=5)
 
-    tk.Button(ventana_eliminar, text="Cancelar", font=FUENTE_BOTON, bg="white", fg=COLOR_BOTON, width=ANCHO_BOTON, height=ALTO_BOTON, command=ventana_eliminar.destroy).pack(pady=10)
 
 # FUNCION PARA ELIMINAR SERVICIO
 def eliminar_servicio(servicio, ventana_eliminar):
@@ -381,8 +376,7 @@ def eliminar_servicio(servicio, ventana_eliminar):
         guardar_servicios(servicios)
         messagebox.showinfo("Éxito", "El servicio ha sido eliminado correctamente.")
         ventana_eliminar.destroy()
-    else:
-        messagebox.showerror("Error", "El servicio no existe.")    
+   
         
 # actualizar servicios
 def abrir_ventana(funcion_ventana):
@@ -392,6 +386,7 @@ def abrir_ventana(funcion_ventana):
     ventana_actual = tk.Toplevel()
     funcion_ventana(ventana_actual)
     ventana_actual.protocol("WM_DELETE_WINDOW", lambda: on_closing(funcion_ventana))
+    
 # Esta funcion on_closing se encarga de cerrar la ventana actual y liberar el recurso de la ventana.
 def on_closing(funcion_ventana):
     global ventana_actual
@@ -450,8 +445,6 @@ def nueva_ventana_actualizar_servicio(ventana_actualizar):
         tk.Button(ventana_actualizar, text=servicio, font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, 
              height=ALTO_BOTON, command=lambda s=servicio: abrir_ventana(lambda v: ventana_actualizar_servicio(v, s))).pack(pady=5)
 
-    tk.Button(ventana_actualizar, text="Cancelar", font=FUENTE_BOTON, bg="white", fg=COLOR_BOTON, width=ANCHO_BOTON,
-              height=ALTO_BOTON, command=ventana_actualizar.destroy).pack(pady=10)
 
 # Esta ventana permite actualizar un servicio de la lista de servicios, 
 # si cambio de nombre por ejemplo, permite modificarlo
@@ -478,11 +471,7 @@ def ventana_actualizar_servicio(ventana_actualizar, servicio):
             
                 messagebox.showinfo("Éxito", "El servicio ha sido actualizado correctamente.")
                 ventana_actualizar.destroy() 
-            else:
-                messagebox.showerror("Error", "El servicio no existe.")
-        else:
-            messagebox.showerror("Error", "Por favor, ingrese un nombre válido para el servicio.")
-
+     
     tk.Button(ventana_actualizar, text="Actualizar", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=actualizar).pack(pady=10)
 
 crear_ventana_principal()

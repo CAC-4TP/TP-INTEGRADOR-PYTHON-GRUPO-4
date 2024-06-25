@@ -53,7 +53,6 @@ virtual.
   * BOTON HOME: redirige al menu PRINCIPAL y esta en todas las pantallas 
     excepto la del MENU.
 
-# BOTON SALIR: haciendo clic en este boton se cerrara la aplicacion.
 
 ######################################################################################
 ARCHIVOS NECESARIOS PARA EL FUNCIONAMIENTO DE LA APP:
