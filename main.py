@@ -1,15 +1,18 @@
 import tkinter as tk
 from tkinter import messagebox
 import json
-
-# Constantes de diseño
+########################################################################################
+# Constantes de diseño: Define fuentes
+# (FUENTE_LOGO, FUENTE_TITULO, FUENTE_TEXTO) y colores que se utilizarán en la interfaz.
+########################################################################################
 FUENTE_LOGO = ("Pacifico", 20)
 FUENTE_TITULO = ("Ubuntu", 24, "bold")
 FUENTE_TEXTO = ("Ubuntu", 16)
 
-COLOR_PRINCIPAL = "#000000" 
+COLOR_PRINCIPAL = "#000000"
+COLOR_BARRA_SCROLL = "#007BFF"
 
-FUENTE_TITULO_BENEFICIOS = ("Ubuntu", 12, "bold underline") # Subrayar el título de beneficios
+FUENTE_TITULO_BENEFICIOS = ("Ubuntu", 12, "bold underline")
 FUENTE_BENEFICIOS = ("Ubuntu", 10)
 COLOR_CUADROS_BENEFICIOS = "#e1e1f9"
 
@@ -23,13 +26,16 @@ ALTO_BOTON = 2
 
 ALTURA_FRANJA = 80
 
+
 # Variable global para la ventana actual: esta en none porque no hay ventana inicialmente
 ventana_actual = None
 
-# Funciones para manejar los movimientos: archivos json
+##########################################################################################
+# Funciones de Manejo de Archivos JSON
+#########################################################################################
+# Intenta cargar movimientos desde 'movimientos.json', devuelve lista vacía si hay error.
+# Maneja excepciones de archivo no encontrado o JSON malformado.
 
-# Intenta leer y cargar los movimientos desde un archivo JSON.
-# Si el archivo no existe o está malformado, devuelve una lista vacía.
 def cargar_movimientos():
     try:
         with open('movimientos.json', 'r') as archivo:
@@ -38,10 +44,13 @@ def cargar_movimientos():
         movimientos = []
     return movimientos
 
-#Guarda la lista de movimientos en un archivo JSON.
+# Guarda la lista de movimientos en 'movimientos.json'.
 def guardar_movimientos(movimientos):
     with open('movimientos.json', 'w') as archivo:
         json.dump(movimientos, archivo)
+
+# Intenta cargar servicios desde 'servicios.json', devuelve lista vacía si hay error. 
+# Convierte el resultado a lista si es un diccionario.
 
 def cargar_servicios():
     try:
@@ -53,23 +62,36 @@ def cargar_servicios():
         servicios = []  # En caso de ser un diccionario, inicializar como lista vacía
     return servicios
 
+# Guarda la lista de servicios en 'servicios.json'.
+
 def guardar_servicios(servicios):
     with open('servicios.json', 'w') as archivo:
         json.dump(servicios, archivo)
+#############################################################################################
+# Función mostrar_saldo
+#############################################################################################
+# Calcula el saldo actual sumando los montos de movimientos cargados desde 'movimientos.json'.
+# Actualiza el texto de un label para mostrar el saldo en la interfaz gráfica.
+# Calcula y muestra el saldo: Lee los movimientos, 
+# suma los montos y actualiza la interfaz con el saldo calculado.
 
-# Calcula y muestra el saldo actual sumando todos los montos 
-# de los movimientos cargados desde el archivo JSON.
+
 def mostrar_saldo():
     global saldo_actual# Variable global cumple la funcion de almacenar el saldo actual
     movimientos = cargar_movimientos() # Carga los movimientos desde el archivo JSON
     saldo_actual = sum(movimiento['monto'] for movimiento in movimientos if 'monto' in movimiento) 
     # Suma los montos de los movimientos que tengan el atributo 'monto' 
     # y los almacena en la variable global saldo_actual
-    label_saldo.config(text=f"Saldo: ${int(saldo_actual)}")  # Mostrar saldo como entero
+    label_saldo.config(text=f"Saldo: ${int(saldo_actual)}")
+    
+##############################################################################################
+#  Funciones para Configurar y Crear Ventanas
+##############################################################################################
 
-# Agrega un nuevo movimiento a la lista de movimientos.
+# Configura propiedades de redimensionamiento y tamaño mínimo de la ventana.
+# Crea y configura elementos visuales como logo, botones y barras.
+
 def configurar_ventana(ventana, principal=False): 
-    # Configuración de redimensionamiento de la ventana principal
     ventana.resizable(True, True)  # Permitir redimensionamiento horizontal y vertical
     ventana.minsize(350, 550)  # Establecer tamaño mínimo para evitar que la ventana se haga demasiado pequeña
 
@@ -90,10 +112,10 @@ def configurar_ventana(ventana, principal=False):
     texto_boton = "SALIR" if principal else "HOME"
     button_salir = tk.Button(frame_inferior, text=texto_boton, font=FUENTE_BOTON, bg="white", fg=COLOR_BOTON, width=ANCHO_BOTON, height=ALTO_BOTON, command=ventana.destroy)
     button_salir.pack(pady=(10, 10))
-    
-# Configura y muestra la ventana principal de la aplicación 
-# con botones para diferentes funcionalidades.
-# Llama a mostrar_saldo para actualizar el saldo al iniciar.
+
+# Crea la ventana principal de la aplicación con botones para diversas funcionalidades.
+# Llama a mostrar_saldo para mostrar el saldo inicial al iniciar la aplicación
+
 def crear_ventana_principal():
     global ventana, label_saldo
     ventana = tk.Tk()
@@ -131,16 +153,22 @@ def crear_ventana_principal():
 
     ventana.mainloop()  # Ejecuta el bucle principal de la ventana
 
+#######################################################################################################
+# Abre una nueva ventana secundaria y cierra la ventana anterior si existe.
 
-# Abre una nueva ventana secundaria y cierra la anterior si existe.
 def abrir_ventana(funcion_ventana):
     global ventana_actual
     if ventana_actual is not None:  # Cerrar la ventana actual si existe
         ventana_actual.destroy()
     ventana_actual = tk.Toplevel()
     funcion_ventana(ventana_actual)
+    
+########################################################################################################
+ # Funciones Específicas para Operaciones (Ingresar dinero, pagar servicio, etc.)
+######################################################################################################
 
-# Configura una ventana para seleccionar un servicio a pagar.
+# Crea una ventana para seleccionar un servicio a pagar con botones para cada servicio.
+
 def nueva_ventana_seleccionar_servicio(ventana_seleccionar):
     ventana_seleccionar.title("Seleccionar Servicio")
     configurar_ventana(ventana_seleccionar, principal=False)
@@ -151,19 +179,16 @@ def nueva_ventana_seleccionar_servicio(ventana_seleccionar):
 
     # Crear botones para cada servicio
     for servicio in servicios:
-        tk.Button(ventana_seleccionar, 
-                  text=servicio, 
-                  font=FUENTE_BOTON, 
-                  bg=COLOR_BOTON, 
-                  fg="white", 
-                  width=ANCHO_BOTON,
-                  height=ALTO_BOTON,
-                  command=lambda 
-                  s=servicio: seleccionar_servicio(s)).pack(pady=5) 
+     tk.Button(ventana_seleccionar, text=servicio, font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white",
+        width=ANCHO_BOTON, height=ALTO_BOTON, command=lambda 
+        s=servicio: seleccionar_servicio(s)).pack(pady=5) 
     
-    tk.Button(ventana_seleccionar, text="Cancelar", font=FUENTE_BOTON, bg="white", fg=COLOR_BOTON, width=ANCHO_BOTON, height=ALTO_BOTON, command=ventana_seleccionar.destroy).pack(pady=10)
+     tk.Button(ventana_seleccionar, text="Cancelar", font=FUENTE_BOTON, bg="white", fg=COLOR_BOTON,
+              width=ANCHO_BOTON, height=ALTO_BOTON, command=ventana_seleccionar.destroy).pack(pady=10)
+    
+#########################################################################################################
+# Crea una ventana para ingresar dinero con validación de entrada y actualización del saldo.
 
-# Esta es la ventana que se abre cuando elijo el boton de ingresar dinero
 def nueva_ventana_ingresar_dinero(ventana_ingresar):
     ventana_ingresar.title("Ingresar Dinero")
     configurar_ventana(ventana_ingresar)
@@ -190,6 +215,21 @@ def nueva_ventana_ingresar_dinero(ventana_ingresar):
 
     tk.Button(ventana_ingresar, text="Confirmar", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=guardar_ingreso).pack(pady=10)
 
+# Intenta leer y cargar los movimientos desde un archivo JSON.
+# Si el archivo no existe o está malformado, devuelve una lista vacía.
+def cargar_movimientos():
+    try:
+        with open('movimientos.json', 'r') as archivo:
+            movimientos = json.load(archivo)
+    except (FileNotFoundError, json.JSONDecodeError):
+        movimientos = []
+    return movimientos
+
+#Guarda la lista de movimientos en un archivo JSON.
+def guardar_movimientos(movimientos):
+    with open('movimientos.json', 'w') as archivo:
+        json.dump(movimientos, archivo)
+
 # Configura una ventana para consultar los movimientos realizados.
 # Muestra una tabla con los movimientos.
 def consultar_movimientos(ventana_actual=None):
@@ -204,10 +244,22 @@ def consultar_movimientos(ventana_actual=None):
     tk.Label(ventana_movimientos, text="Movimientos", font=FUENTE_TEXTO).pack(pady=5)# este label es para poner el titulo de la ventana
 
     movimientos = cargar_movimientos()
-    # Este frame es para que la tabla quede centrada
-    frame_movimientos = tk.Frame(ventana_movimientos)  # Ajustar tamaño del marco
-    frame_movimientos.pack(pady=10)
     
+    # Crear un canvas para contener el frame con los movimientos y una scrollbar
+    canvas = tk.Canvas(ventana_movimientos)
+    frame_movimientos = tk.Frame(canvas)
+    scrollbar = tk.Scrollbar(ventana_movimientos, orient="vertical", command=canvas.yview, bg=COLOR_BARRA_SCROLL)
+    canvas.configure(yscrollcommand=scrollbar.set)
+
+    scrollbar.pack(side="right", fill="y")
+    canvas.pack(side="left", fill="both", expand=True)
+    canvas.create_window((0, 0), window=frame_movimientos, anchor="nw")
+
+    def on_frame_configure(event):
+        canvas.configure(scrollregion=canvas.bbox("all"))
+
+    frame_movimientos.bind("<Configure>", on_frame_configure)
+
     # Crear encabezados de la tabla
     headers = ["OPERACION", "MONTO", "DETALLE"]
     for i, header in enumerate(headers):
@@ -345,55 +397,10 @@ def on_closing(funcion_ventana):
     global ventana_actual
     ventana_actual.destroy()
     ventana_actual = None
-
-def nueva_ventana_actualizar_servicio(ventana_actualizar):
-    ventana_actualizar.title("Actualizar Servicio")
-    configurar_ventana(ventana_actualizar)
-
-    tk.Label(ventana_actualizar, text="Seleccione el servicio a actualizar:", font=FUENTE_TEXTO).pack(pady=10)
-
-    servicios = cargar_servicios()
-
-    for servicio in servicios:
-        tk.Button(ventana_actualizar, text=servicio, font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, 
-             height=ALTO_BOTON, command=lambda s=servicio: abrir_ventana(lambda v: ventana_actualizar_servicio(v, s))).pack(pady=5)
-
-    tk.Button(ventana_actualizar, text="Cancelar", font=FUENTE_BOTON, bg="white", fg=COLOR_BOTON, width=ANCHO_BOTON,
-              height=ALTO_BOTON, command=ventana_actualizar.destroy).pack(pady=10)
-
-# Esta ventana permite actualizar un servicio de la lista de servicios, si cambio de nombre por ejemplo, permite modificarlo
-def ventana_actualizar_servicio(ventana_actualizar, servicio):
-    ventana_actualizar.title(f"Actualizar {servicio}")
-    configurar_ventana(ventana_actualizar)
-
-    tk.Label(ventana_actualizar, text=f"Ingrese el nuevo nombre para {servicio}:", font=FUENTE_TEXTO).pack(pady=10)
-    entry_nuevo_servicio = tk.Entry(ventana_actualizar, font=FUENTE_TEXTO)
-    entry_nuevo_servicio.pack(pady=10)
-
-    def actualizar():
-        nuevo_servicio = entry_nuevo_servicio.get()
-        if nuevo_servicio:
-            servicios = cargar_servicios()
-            if servicio in servicios:
-                servicios.remove(servicio)
-                servicios.append(nuevo_servicio)
-                guardar_servicios(servicios)
-
-                # AGREGAR EN los movimientos que corresponden al servicio actualizado
-                # OPERACION: ACTUALIZACION, MONTO: 0. DETALLE: SERVICIO ACTUALIZADO A NUEVO SERVICIO
-                movimientos = cargar_movimientos()
-                movimientos.append({"operacion": "Actualización", "monto": 0, "detalle": f"{servicio} cambió a {nuevo_servicio}"})
-                guardar_movimientos(movimientos)               
-            
-                messagebox.showinfo("Éxito", "El servicio ha sido actualizado correctamente.")
-                ventana_actualizar.destroy()  # Cerrar la ventana de actualización
-            else:
-                messagebox.showerror("Error", "El servicio no existe.")
-        else:
-            messagebox.showerror("Error", "Por favor, ingrese un nombre válido para el servicio.")
-
-    tk.Button(ventana_actualizar, text="Actualizar", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=actualizar).pack(pady=10)
-
+    
+####################################################################################################
+# Ventanas y Funciones para Beneficios y Actualización de Servicios
+####################################################################################################
 def nueva_ventana_beneficios(ventana_beneficios):
     ventana_beneficios.title("Beneficios")
     ventana_beneficios.geometry("300x600")  # Ajustar la geometría de la ventana
@@ -427,6 +434,56 @@ def nueva_ventana_beneficios(ventana_beneficios):
     frame_botones.lower()
 
     ventana_beneficios.mainloop()
+##################################################################################################
+# Crea una ventana para actualizar un servicio seleccionado.
+# Permite cambiar el nombre del servicio y registra el cambio en movimientos.
+
+def nueva_ventana_actualizar_servicio(ventana_actualizar):
+    ventana_actualizar.title("Actualizar Servicio")
+    configurar_ventana(ventana_actualizar)
+
+    tk.Label(ventana_actualizar, text="Seleccione el servicio a actualizar:", font=FUENTE_TEXTO).pack(pady=10)
+
+    servicios = cargar_servicios()
+
+    for servicio in servicios:
+        tk.Button(ventana_actualizar, text=servicio, font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, 
+             height=ALTO_BOTON, command=lambda s=servicio: abrir_ventana(lambda v: ventana_actualizar_servicio(v, s))).pack(pady=5)
+
+    tk.Button(ventana_actualizar, text="Cancelar", font=FUENTE_BOTON, bg="white", fg=COLOR_BOTON, width=ANCHO_BOTON,
+              height=ALTO_BOTON, command=ventana_actualizar.destroy).pack(pady=10)
+
+# Esta ventana permite actualizar un servicio de la lista de servicios, 
+# si cambio de nombre por ejemplo, permite modificarlo
+def ventana_actualizar_servicio(ventana_actualizar, servicio):
+    ventana_actualizar.title(f"Actualizar {servicio}")
+    configurar_ventana(ventana_actualizar)
+
+    tk.Label(ventana_actualizar, text=f"Ingrese el nuevo nombre para {servicio}:", font=FUENTE_TEXTO).pack(pady=10)
+    entry_nuevo_servicio = tk.Entry(ventana_actualizar, font=FUENTE_TEXTO)
+    entry_nuevo_servicio.pack(pady=10)
+    
+    # Esta funcion actualiza el servicio seleccionado y lo guarda en la lista de servicios
+    def actualizar():
+        nuevo_servicio = entry_nuevo_servicio.get()
+        if nuevo_servicio:
+            servicios = cargar_servicios()
+            if servicio in servicios:
+                servicios.remove(servicio)
+                servicios.append(nuevo_servicio)
+                guardar_servicios(servicios)                
+                movimientos = cargar_movimientos()
+                movimientos.append({"operacion": "Actualización", "monto": 0, "detalle": f"{servicio} cambió a {nuevo_servicio}"})
+                guardar_movimientos(movimientos)               
+            
+                messagebox.showinfo("Éxito", "El servicio ha sido actualizado correctamente.")
+                ventana_actualizar.destroy() 
+            else:
+                messagebox.showerror("Error", "El servicio no existe.")
+        else:
+            messagebox.showerror("Error", "Por favor, ingrese un nombre válido para el servicio.")
+
+    tk.Button(ventana_actualizar, text="Actualizar", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=actualizar).pack(pady=10)
 
 crear_ventana_principal()
 
