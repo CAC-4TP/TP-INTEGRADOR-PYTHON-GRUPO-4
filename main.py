@@ -81,7 +81,7 @@ def mostrar_saldo():
     saldo_actual = sum(movimiento['monto'] for movimiento in movimientos if 'monto' in movimiento) 
     # Suma los montos de los movimientos que tengan el atributo 'monto' 
     # y los almacena en la variable global saldo_actual
-    label_saldo.config(text=f"Saldo: ${int(saldo_actual)}")
+    label_saldo.config(text=f"Saldo: ${float(saldo_actual)}")
     
 ##############################################################################################
 #  Funciones para Configurar y Crear Ventanas
@@ -221,7 +221,7 @@ def consultar_movimientos(ventana_actual=None):
     
     ventana_movimientos = tk.Toplevel()
     ventana_movimientos.title("Movimientos")
-    ventana_movimientos.geometry("620x600")  # Ajustar tamaño de la ventana principal
+    ventana_movimientos.geometry("700x600")  # Ajustar tamaño de la ventana principal
     configurar_ventana(ventana_movimientos)
 
     tk.Label(ventana_movimientos, text="Movimientos", font=FUENTE_TEXTO).pack(pady=5)# este label es para poner el titulo de la ventana
@@ -243,11 +243,11 @@ def consultar_movimientos(ventana_actual=None):
 
     frame_movimientos.bind("<Configure>", on_frame_configure)
 
-    # Crear encabezados de la tabla
+      # Crear encabezados de la tabla
     headers = ["OPERACION", "MONTO", "DETALLE"]
     for i, header in enumerate(headers):
-        label = tk.Label(frame_movimientos, text=header, font=FUENTE_TEXTO_TABLA, width=20, anchor='w')
-        label.grid(row=0, column=i, padx=10, pady=5)
+        label = tk.Label(frame_movimientos, text=header, font=FUENTE_TEXTO_TABLA, width=30, anchor='w')
+        label.grid(row=0, column=i, pady=5)
     
     # Crear filas de la tabla
     for i, movimiento in enumerate(movimientos, start=1):
@@ -255,10 +255,10 @@ def consultar_movimientos(ventana_actual=None):
         monto = movimiento.get('monto', 'Monto no registrado')  # Obtener el monto o un mensaje alternativo
         detalle = movimiento.get('detalle', 'Detalle no registrado')  # Obtener el detalle o un mensaje alternativo
         
-        # Esto es para alinear el texto a la izquierda
-        tk.Label(frame_movimientos, text=operacion.capitalize(), font=FUENTE_TEXTO_TABLA, width=20, anchor='w').grid(row=i, column=0, padx=(0))
-        tk.Label(frame_movimientos, text=f"${monto}", font=FUENTE_TEXTO_TABLA, width=20, anchor='w').grid(row=i, column=1, padx=(0))
-        tk.Label(frame_movimientos, text=detalle, font=FUENTE_TEXTO_TABLA, width=20, anchor='w').grid(row=i, column=2, padx=(0))
+        # Esto es para alinear el texto a la izquierda sin margen
+        tk.Label(frame_movimientos, text=operacion.capitalize(), font=FUENTE_TEXTO_TABLA, width=30, anchor='w').grid(row=i, column=0)
+        tk.Label(frame_movimientos, text=f"${monto}", font=FUENTE_TEXTO_TABLA, width=30, anchor='w').grid(row=i, column=1)
+        tk.Label(frame_movimientos, text=detalle, font=FUENTE_TEXTO_TABLA, width=30, anchor='w').grid(row=i, column=2)
 
 
 # Configura una ventana para pagar un servicio seleccionado.
@@ -279,19 +279,25 @@ def seleccionar_servicio(servicio):
     # Esta funcion se encarga de pagar el servicio, 
     # si el monto es menor o igual al saldo actual, se actualiza el saldo y se guarda el movimiento
     # si el monto es mayor al saldo actual, no se actualiza el saldo y se muestra un mensaje de error
+    # si el valor ingresado no es un numero, da error y no permite realizar la operacion
     def pagar():
         global saldo_actual
-        monto = float(entry_monto.get())
-        if monto <= saldo_actual:
-            saldo_actual -= monto
-            movimientos = cargar_movimientos()
-            movimientos.append({"operacion": "Pago de servicio", "monto": -monto, "detalle": f"{servicio}"})
-            guardar_movimientos(movimientos)
-            mostrar_saldo()
-            messagebox.showinfo("Éxito", "El servicio ha sido pagado correctamente.")
-            ventana_actual.destroy()
-        else:
-            messagebox.showerror("Error", "Saldo insuficiente.")
+        try:
+            monto = float(entry_monto.get())
+            if monto.is_integer():  # Verificar si el monto es un número entero
+                if monto <= saldo_actual:
+                    saldo_actual -= monto
+                    movimientos = cargar_movimientos()
+                    movimientos.append({"operacion": "Pago de servicio", "monto": -monto, "detalle": f"{servicio}"})
+                    guardar_movimientos(movimientos)
+                    mostrar_saldo()
+                    messagebox.showinfo("Éxito", "El servicio ha sido pagado correctamente.")
+                    ventana_actual.destroy()
+            else:
+                messagebox.showerror("Error", "Saldo insuficiente.")
+                ventana_actual.destroy()
+        except ValueError:
+            messagebox.showerror("Error", "Por favor, ingrese un monto válido.")
             ventana_actual.destroy()
 
     tk.Button(ventana_actual, text="Pagar", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=pagar).pack(pady=10)
@@ -461,6 +467,48 @@ def ventana_actualizar_servicio(ventana_actualizar, servicio):
     tk.Button(ventana_actualizar, text="Actualizar", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=actualizar).pack(pady=10)
 
 crear_ventana_principal()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
