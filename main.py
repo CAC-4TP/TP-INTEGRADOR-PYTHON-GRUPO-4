@@ -279,19 +279,25 @@ def seleccionar_servicio(servicio):
     # Esta funcion se encarga de pagar el servicio, 
     # si el monto es menor o igual al saldo actual, se actualiza el saldo y se guarda el movimiento
     # si el monto es mayor al saldo actual, no se actualiza el saldo y se muestra un mensaje de error
+    # si el valor ingresado no es un numero, da error y no permite realizar la operacion
     def pagar():
         global saldo_actual
-        monto = float(entry_monto.get())
-        if monto <= saldo_actual:
-            saldo_actual -= monto
-            movimientos = cargar_movimientos()
-            movimientos.append({"operacion": "Pago de servicio", "monto": -monto, "detalle": f"{servicio}"})
-            guardar_movimientos(movimientos)
-            mostrar_saldo()
-            messagebox.showinfo("Éxito", "El servicio ha sido pagado correctamente.")
-            ventana_actual.destroy()
-        else:
-            messagebox.showerror("Error", "Saldo insuficiente.")
+        try:
+            monto = float(entry_monto.get())
+            if monto.is_integer():  # Verificar si el monto es un número entero
+                if monto <= saldo_actual:
+                    saldo_actual -= monto
+                    movimientos = cargar_movimientos()
+                    movimientos.append({"operacion": "Pago de servicio", "monto": -monto, "detalle": f"{servicio}"})
+                    guardar_movimientos(movimientos)
+                    mostrar_saldo()
+                    messagebox.showinfo("Éxito", "El servicio ha sido pagado correctamente.")
+                    ventana_actual.destroy()
+            else:
+                messagebox.showerror("Error", "Saldo insuficiente.")
+                ventana_actual.destroy()
+        except ValueError:
+            messagebox.showerror("Error", "Por favor, ingrese un monto válido.")
             ventana_actual.destroy()
 
     tk.Button(ventana_actual, text="Pagar", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=pagar).pack(pady=10)
@@ -461,6 +467,18 @@ def ventana_actualizar_servicio(ventana_actualizar, servicio):
     tk.Button(ventana_actualizar, text="Actualizar", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=actualizar).pack(pady=10)
 
 crear_ventana_principal()
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
