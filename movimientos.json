@@ -1,1 +1,0 @@
-[{"operacion": "Ingreso", "monto": 25000, "detalle": "Dinero acreditado"}, {"operacion": "Pago de servicio", "monto": -2500.0, "detalle": "LUZ"}, {"operacion": "Nuevo servicio", "monto": 0, "detalle": "TAZA "}, {"operacion": "Eliminaci\u00f3n de servicio", "monto": 0, "detalle": "TAZA "}, {"operacion": "Actualizaci\u00f3n", "monto": 0, "detalle": "CUENTAS cambi\u00f3 a CLARO"}]

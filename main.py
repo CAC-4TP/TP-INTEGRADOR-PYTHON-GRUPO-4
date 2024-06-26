@@ -81,7 +81,7 @@ def mostrar_saldo():
     saldo_actual = sum(movimiento['monto'] for movimiento in movimientos if 'monto' in movimiento) 
     # Suma los montos de los movimientos que tengan el atributo 'monto' 
     # y los almacena en la variable global saldo_actual
-    label_saldo.config(text=f"Saldo: ${int(saldo_actual)}")
+    label_saldo.config(text=f"Saldo: ${float(saldo_actual)}")
     
 ##############################################################################################
 #  Funciones para Configurar y Crear Ventanas
@@ -467,6 +467,36 @@ def ventana_actualizar_servicio(ventana_actualizar, servicio):
     tk.Button(ventana_actualizar, text="Actualizar", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=actualizar).pack(pady=10)
 
 crear_ventana_principal()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
