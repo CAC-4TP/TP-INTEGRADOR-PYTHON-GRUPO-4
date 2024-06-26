@@ -221,7 +221,7 @@ def consultar_movimientos(ventana_actual=None):
     
     ventana_movimientos = tk.Toplevel()
     ventana_movimientos.title("Movimientos")
-    ventana_movimientos.geometry("620x600")  # Ajustar tamaño de la ventana principal
+    ventana_movimientos.geometry("700x600")  # Ajustar tamaño de la ventana principal
     configurar_ventana(ventana_movimientos)
 
     tk.Label(ventana_movimientos, text="Movimientos", font=FUENTE_TEXTO).pack(pady=5)# este label es para poner el titulo de la ventana
@@ -243,11 +243,11 @@ def consultar_movimientos(ventana_actual=None):
 
     frame_movimientos.bind("<Configure>", on_frame_configure)
 
-    # Crear encabezados de la tabla
+      # Crear encabezados de la tabla
     headers = ["OPERACION", "MONTO", "DETALLE"]
     for i, header in enumerate(headers):
-        label = tk.Label(frame_movimientos, text=header, font=FUENTE_TEXTO_TABLA, width=20, anchor='w')
-        label.grid(row=0, column=i, padx=10, pady=5)
+        label = tk.Label(frame_movimientos, text=header, font=FUENTE_TEXTO_TABLA, width=30, anchor='w')
+        label.grid(row=0, column=i, pady=5)
     
     # Crear filas de la tabla
     for i, movimiento in enumerate(movimientos, start=1):
@@ -255,10 +255,10 @@ def consultar_movimientos(ventana_actual=None):
         monto = movimiento.get('monto', 'Monto no registrado')  # Obtener el monto o un mensaje alternativo
         detalle = movimiento.get('detalle', 'Detalle no registrado')  # Obtener el detalle o un mensaje alternativo
         
-        # Esto es para alinear el texto a la izquierda
-        tk.Label(frame_movimientos, text=operacion.capitalize(), font=FUENTE_TEXTO_TABLA, width=20, anchor='w').grid(row=i, column=0, padx=(0))
-        tk.Label(frame_movimientos, text=f"${monto}", font=FUENTE_TEXTO_TABLA, width=20, anchor='w').grid(row=i, column=1, padx=(0))
-        tk.Label(frame_movimientos, text=detalle, font=FUENTE_TEXTO_TABLA, width=20, anchor='w').grid(row=i, column=2, padx=(0))
+        # Esto es para alinear el texto a la izquierda sin margen
+        tk.Label(frame_movimientos, text=operacion.capitalize(), font=FUENTE_TEXTO_TABLA, width=30, anchor='w').grid(row=i, column=0)
+        tk.Label(frame_movimientos, text=f"${monto}", font=FUENTE_TEXTO_TABLA, width=30, anchor='w').grid(row=i, column=1)
+        tk.Label(frame_movimientos, text=detalle, font=FUENTE_TEXTO_TABLA, width=30, anchor='w').grid(row=i, column=2)
 
 
 # Configura una ventana para pagar un servicio seleccionado.
