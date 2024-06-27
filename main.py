@@ -27,7 +27,7 @@ ALTO_BOTON = 2
 ALTURA_FRANJA = 80
 
 
-# Variable global para la ventana actual: esta en none porque no hay ventana inicialmente
+# Variable global para la ventana actual: esta en none porque SE VA ACTUALIZANDO A MEDIDA QUE SE ABREN OTRAS
 ventana_actual = None
 
 ##########################################################################################
@@ -81,7 +81,7 @@ def mostrar_saldo():
     saldo_actual = sum(movimiento['monto'] for movimiento in movimientos if 'monto' in movimiento) 
     # Suma los montos de los movimientos que tengan el atributo 'monto' 
     # y los almacena en la variable global saldo_actual
-    label_saldo.config(text=f"Saldo: ${float(saldo_actual)}")
+    label_saldo.config(text=f"Saldo: ${int(saldo_actual)}")
     
 ##############################################################################################
 #  Funciones para Configurar y Crear Ventanas
