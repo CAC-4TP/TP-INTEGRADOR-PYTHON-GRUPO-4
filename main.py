@@ -196,11 +196,13 @@ def nueva_ventana_ingresar_dinero(ventana_ingresar):
     # Incluye la lógica para guardar el ingreso y actualizar el saldo.
     def guardar_ingreso():
         monto = entry_monto.get()
-        if monto.isdigit(): # si el valor ingresado es un número entero
+        if monto.isdigit(): # si el valor ingresado es un número entero: 
+            # El método isdigit() devuelve True si todos los caracteres en la cadena son dígitos 
+            # y hay al menos un carácter, de lo contrario, devuelve False.
             movimientos = cargar_movimientos() # cargar los movimientos actuales
             
             # Agregar el ingreso al final de la lista de movimientos
-            movimientos.append({"operacion": "Ingreso", "monto": int(monto), "detalle": "Dinero acreditado"})
+            movimientos.insert(0,{"operacion": "Ingreso", "monto": int(monto), "detalle": "Dinero acreditado"})
             guardar_movimientos(movimientos) # guardar los movimientos actualizados
             mostrar_saldo()
             messagebox.showinfo("Éxito", "El dinero ha sido ingresado correctamente.")
@@ -288,7 +290,7 @@ def seleccionar_servicio(servicio):
                 if monto <= saldo_actual:
                     saldo_actual -= monto
                     movimientos = cargar_movimientos()
-                    movimientos.append({"operacion": "Pago de servicio", "monto": -monto, "detalle": f"{servicio}"})
+                    movimientos.insert (0,{"operacion": "Pago de servicio", "monto": -monto, "detalle": f"{servicio}"})
                     guardar_movimientos(movimientos)
                     mostrar_saldo()
                     messagebox.showinfo("Éxito", "El servicio ha sido pagado correctamente.")
@@ -326,7 +328,7 @@ def nueva_ventana_agregar_servicio(ventana_agregar):
                 servicios.append(servicio)
                 #se registra en la tabla movimientos
                 movimientos = cargar_movimientos()  
-                movimientos.append({"operacion": "Nuevo servicio", "monto": 0, "detalle": f"{servicio}"})
+                movimientos.insert(0, {"operacion": "Nuevo servicio", "monto": 0, "detalle": f"{servicio}"})
                 guardar_movimientos(movimientos)
                 guardar_servicios(servicios)
                 messagebox.showinfo("Éxito", "El servicio ha sido agregado correctamente.")
@@ -363,7 +365,7 @@ def eliminar_servicio(servicio, ventana_eliminar):
     if servicio in servicios:
         servicios.remove(servicio)
         movimientos = cargar_movimientos()
-        movimientos.append({"operacion": "Eliminación de servicio", "monto": 0, "detalle": f"{servicio}"})
+        movimientos.insert(0, {"operacion": "Eliminación de servicio", "monto": 0, "detalle": f"{servicio}"})
         guardar_movimientos(movimientos)
         guardar_servicios(servicios)
         messagebox.showinfo("Éxito", "El servicio ha sido eliminado correctamente.")
@@ -458,7 +460,7 @@ def ventana_actualizar_servicio(ventana_actualizar, servicio):
                 servicios.append(nuevo_servicio)
                 guardar_servicios(servicios)                
                 movimientos = cargar_movimientos()
-                movimientos.append({"operacion": "Actualización", "monto": 0, "detalle": f"{servicio} cambió a {nuevo_servicio}"})
+                movimientos.insert(0, {"operacion": "Actualización", "monto": 0, "detalle": f"{servicio} cambió a {nuevo_servicio}"})
                 guardar_movimientos(movimientos)               
             
                 messagebox.showinfo("Éxito", "El servicio ha sido actualizado correctamente.")
