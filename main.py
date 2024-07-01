@@ -33,9 +33,19 @@ ventana_actual = None
 ##########################################################################################
 # Funciones de Manejo de Archivos JSON
 #########################################################################################
-# Intenta cargar movimientos desde 'movimientos.json', devuelve lista vacía si hay error.
-# Maneja excepciones de archivo no encontrado o JSON malformado.
+def cargar_usuarios():
+    try:
+        with open('usuarios.json', 'r') as archivo:
+            usuarios = json.load(archivo)
+    except (FileNotFoundError, json.JSONDecodeError):
+        usuarios = []
+    return usuarios
 
+def guardar_usuarios(usuarios):
+    with open('usuarios.json', 'w') as archivo:
+        json.dump(usuarios, archivo)
+
+# json movimientos
 def cargar_movimientos():
     try:
         with open('movimientos.json', 'r') as archivo:
@@ -44,13 +54,12 @@ def cargar_movimientos():
         movimientos = []
     return movimientos
 
-# Guarda la lista de movimientos en 'movimientos.json'.
+
 def guardar_movimientos(movimientos):
     with open('movimientos.json', 'w') as archivo:
         json.dump(movimientos, archivo)
 
-# Intenta cargar servicios desde 'servicios.json', devuelve lista vacía si hay error. 
-# Convierte el resultado a lista si es un diccionario.
+#json servicios
 
 def cargar_servicios():
     try:
@@ -62,18 +71,43 @@ def cargar_servicios():
         servicios = []  # En caso de ser un diccionario, inicializar como lista vacía
     return servicios
 
-# Guarda la lista de servicios en 'servicios.json'.
 
 def guardar_servicios(servicios):
     with open('servicios.json', 'w') as archivo:
         json.dump(servicios, archivo)
+        
+# json usuarios registrados: guarda nombre y contraseña
+
+def cargar_usuarios():
+    try:
+        with open('usuarios.json', 'r') as archivo:
+            usuarios = json.load(archivo)
+    except (FileNotFoundError, json.JSONDecodeError):
+        usuarios = []
+    return usuarios
+# si no esta registrado debe registrarse
+def guardar_usuarios(usuarios):
+    with open('usuarios.json', 'w') as archivo:
+        json.dump(usuarios, archivo)
+        
+#json usuarios registrados: guarda nombre y contraseña
+
+def cargar_usuarios_registrados():
+    try:
+        with open('usuarios_registrados.json', 'r') as archivo:
+            usuarios_registrados = json.load(archivo)
+    except (FileNotFoundError, json.JSONDecodeError):
+        usuarios_registrados = []
+    return usuarios_registrados   
+        
+
+
 #############################################################################################
 # Función mostrar_saldo
 #############################################################################################
 
 # Calcula y muestra el saldo: Lee los movimientos, 
 # suma los montos y actualiza la interfaz con el saldo calculado.
-
 
 def mostrar_saldo():
     global saldo_actual# Variable global cumple la funcion de almacenar el saldo actual
@@ -84,33 +118,41 @@ def mostrar_saldo():
     label_saldo.config(text=f"Saldo: ${int(saldo_actual)}")
     
 ##############################################################################################
-#  Funciones para Configurar y Crear Ventanas
+# Esta función establece el diseño básico de una ventana con un encabezado que 
+# incluye un logo y un botón de salida en la parte inferior.
 ##############################################################################################
 
 # Configura propiedades de redimensionamiento y tamaño mínimo de la ventana.
 # Crea y configura elementos visuales como logo, botones y barras.
 
 def configurar_ventana(ventana, principal=False): 
-    ventana.resizable(True, True)  # Permitir redimensionamiento horizontal y vertical
-    ventana.minsize(350, 550)  # Establecer tamaño mínimo para evitar que la ventana se haga demasiado pequeña
+    ventana.resizable(True, True)
+    ventana.minsize(350, 550)
 
     frame_contenedor = tk.Frame(ventana, bg=COLOR_BOTON, height=ALTURA_FRANJA)
     frame_contenedor.pack(fill="x")
 
     logo = tk.PhotoImage(file="imagenes/logo.png")
-    logo = logo.subsample(4)  # Redimensionar la imagen
+    logo = logo.subsample(4)
 
-    label_logo_texto = tk.Label(frame_contenedor, image=logo, text="PayPy", font=FUENTE_LOGO, bg=COLOR_BOTON, fg="white", compound="top", padx=5, pady=10)
-    label_logo_texto.image = logo  # Para evitar que el garbage collector elimine la imagen
+    label_logo_texto = tk.Label(frame_contenedor, image=logo, text="PayPy", font=FUENTE_LOGO, bg=COLOR_BOTON, fg="white",
+                                compound="top", padx=5, pady=10)
+    label_logo_texto.image = logo
     label_logo_texto.pack(pady=(10, 0))
-    
+
     frame_inferior = tk.Frame(ventana, bg=COLOR_BOTON, height=ALTURA_FRANJA)
     frame_inferior.pack(fill="x", side="bottom")
-    frame_inferior.lower()  # lower es un método que coloca un widget debajo de otro
+    frame_inferior.lower()
 
-    texto_boton = "SALIR" if principal else "HOME"
-    button_salir = tk.Button(frame_inferior, text=texto_boton, font=FUENTE_BOTON, bg="white", fg=COLOR_BOTON, width=ANCHO_BOTON, height=ALTO_BOTON, command=ventana.destroy)
+  
+    texto_boton = "SALIR"
+    button_salir = tk.Button(frame_inferior, text=texto_boton, font=FUENTE_BOTON, bg="white", fg=COLOR_BOTON, width=ANCHO_BOTON, 
+                             height=ALTO_BOTON, command=ventana.destroy)
     button_salir.pack(pady=(10, 10))
+
+################################################################################################################################
+# VENTANA INICIAL: MENU PRINCIPAL
+################################################################################################################################
 
 # Crea la ventana principal de la aplicación con botones para diversas funcionalidades.
 # Llama a mostrar_saldo para mostrar el saldo inicial al iniciar la aplicación
@@ -127,25 +169,32 @@ def crear_ventana_principal():
     frame_botones_principales = tk.Frame(ventana)
     frame_botones_principales.pack()
 
-    button_ingresar = tk.Button(frame_botones_principales, text="Ingresar \n dinero", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=lambda: abrir_ventana(nueva_ventana_ingresar_dinero))
+    button_ingresar = tk.Button(frame_botones_principales, text="Ingresar \n dinero", font=FUENTE_BOTON, bg=COLOR_BOTON, 
+    fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=lambda: abrir_ventana(nueva_ventana_ingresar_dinero))
     button_ingresar.grid(row=0, column=0, padx=5, pady=2)
 
-    button_consultar = tk.Button(frame_botones_principales, text="Movimientos", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=lambda: abrir_ventana(consultar_movimientos))
+    button_consultar = tk.Button(frame_botones_principales, text="Movimientos", font=FUENTE_BOTON, bg=COLOR_BOTON, 
+    fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=lambda: abrir_ventana(consultar_movimientos))
     button_consultar.grid(row=0, column=1, padx=5, pady=2)
 
-    button_pagar = tk.Button(frame_botones_principales, text="Pagar \n servicio", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=lambda: abrir_ventana(nueva_ventana_seleccionar_servicio))
+    button_pagar = tk.Button(frame_botones_principales, text="Pagar \n servicio", font=FUENTE_BOTON, bg=COLOR_BOTON, 
+    fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=lambda: abrir_ventana(nueva_ventana_seleccionar_servicio))
     button_pagar.grid(row=1, column=0, padx=5, pady=2)
 
-    button_agregar_servicio = tk.Button(frame_botones_principales, text="Agregar \n servicio", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=lambda: abrir_ventana(nueva_ventana_agregar_servicio))
+    button_agregar_servicio = tk.Button(frame_botones_principales, text="Agregar \n servicio", font=FUENTE_BOTON, bg=COLOR_BOTON, 
+    fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=lambda: abrir_ventana(nueva_ventana_agregar_servicio))
     button_agregar_servicio.grid(row=1, column=1, padx=5, pady=2)
     
-    button_actualizar_servicio = tk.Button(frame_botones_principales, text="Actualizar \n servicio", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=lambda: abrir_ventana(nueva_ventana_actualizar_servicio))
+    button_actualizar_servicio = tk.Button(frame_botones_principales, text="Actualizar \n servicio", font=FUENTE_BOTON, 
+    bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=lambda: abrir_ventana(nueva_ventana_actualizar_servicio))
     button_actualizar_servicio.grid(row=2, column=0, padx=5, pady=2)
 
-    button_eliminar_servicio = tk.Button(frame_botones_principales, text="Eliminar \n servicio", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=lambda: abrir_ventana(nueva_ventana_eliminar_servicio))
+    button_eliminar_servicio = tk.Button(frame_botones_principales, text="Eliminar \n servicio", font=FUENTE_BOTON, 
+    bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=lambda: abrir_ventana(nueva_ventana_eliminar_servicio))
     button_eliminar_servicio.grid(row=2, column=1, padx=5, pady=2)
 
-    button_beneficios = tk.Button(frame_botones_principales, text="Beneficios", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=lambda: abrir_ventana(nueva_ventana_beneficios))
+    button_beneficios = tk.Button(frame_botones_principales, text="Beneficios", font=FUENTE_BOTON, bg=COLOR_BOTON, 
+    fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=lambda: abrir_ventana(nueva_ventana_beneficios))
     button_beneficios.grid(row=3, column=0, columnspan=2, padx=5, pady=2)
 
     mostrar_saldo()  # Actualizar el saldo al iniciar la aplicación
@@ -162,26 +211,9 @@ def abrir_ventana(funcion_ventana):
     ventana_actual = tk.Toplevel()
     funcion_ventana(ventana_actual)
     
-########################################################################################################
- # Funciones Específicas para Operaciones (Ingresar dinero, pagar servicio, etc.)
-######################################################################################################
 
-# Crea una ventana para seleccionar un servicio a pagar con botones para cada servicio.
-
-def nueva_ventana_seleccionar_servicio(ventana_seleccionar):
-    ventana_seleccionar.title("Seleccionar Servicio")
-    configurar_ventana(ventana_seleccionar, principal=False)
-
-    tk.Label(ventana_seleccionar, text="Seleccione el servicio a pagar:", font=FUENTE_TEXTO).pack(pady=10)
-    # Cargar los servicios disponibles desde el archivo JSON
-    servicios = cargar_servicios()
-
-    # Crear botones para cada servicio
-    for servicio in servicios:
-     tk.Button(ventana_seleccionar, text=servicio, font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white",
-        width=ANCHO_BOTON, height=ALTO_BOTON, command=lambda 
-        s=servicio: seleccionar_servicio(s)).pack(pady=5)
-    
+#########################################################################################################
+# VENTANA PARA INGRESAR DINERO
 #########################################################################################################
 # Crea una ventana para ingresar dinero con validación de entrada y actualización del saldo.
 
@@ -189,7 +221,7 @@ def nueva_ventana_ingresar_dinero(ventana_ingresar):
     ventana_ingresar.title("Ingresar Dinero")
     configurar_ventana(ventana_ingresar)
 
-    tk.Label(ventana_ingresar, text="Ingrese el monto:", font=FUENTE_TEXTO).pack(pady=10)# este es el label que me permite poner el monto
+    tk.Label(ventana_ingresar, text="Ingrese el monto:", font=FUENTE_TEXTO).pack(pady=10)
     entry_monto = tk.Entry(ventana_ingresar, font=FUENTE_TEXTO)
     entry_monto.pack(pady=10)
 
@@ -211,9 +243,12 @@ def nueva_ventana_ingresar_dinero(ventana_ingresar):
         else:
             messagebox.showerror("Error", "Por favor, ingrese un monto válido.")
 
-    tk.Button(ventana_ingresar, text="Confirmar", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=guardar_ingreso).pack(pady=10)
+    tk.Button(ventana_ingresar, text="Confirmar", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, 
+              height=ALTO_BOTON, command=guardar_ingreso).pack(pady=10)
 
-
+######################################################################################################################
+# VENTANA PARA CONSULTAR MOVIMIENTOS
+######################################################################################################################
 
 # Configura una ventana para consultar los movimientos realizados.
 # Muestra una tabla con los movimientos.
@@ -226,7 +261,7 @@ def consultar_movimientos(ventana_actual=None):
     ventana_movimientos.geometry("700x600")  # Ajustar tamaño de la ventana principal
     configurar_ventana(ventana_movimientos)
 
-    tk.Label(ventana_movimientos, text="Movimientos", font=FUENTE_TEXTO).pack(pady=5)# este label es para poner el titulo de la ventana
+    tk.Label(ventana_movimientos, text="Movimientos", font=FUENTE_TEXTO).pack(pady=5)
 
     movimientos = cargar_movimientos()
     
@@ -245,7 +280,7 @@ def consultar_movimientos(ventana_actual=None):
 
     frame_movimientos.bind("<Configure>", on_frame_configure)
 
-      # Crear encabezados de la tabla
+    # Crear encabezados de la tabla
     headers = ["OPERACION", "MONTO", "DETALLE"]
     for i, header in enumerate(headers):
         label = tk.Label(frame_movimientos, text=header, font=FUENTE_TEXTO_TABLA, width=30, anchor='w')
@@ -262,9 +297,31 @@ def consultar_movimientos(ventana_actual=None):
         tk.Label(frame_movimientos, text=f"${monto}", font=FUENTE_TEXTO_TABLA, width=30, anchor='w').grid(row=i, column=1)
         tk.Label(frame_movimientos, text=detalle, font=FUENTE_TEXTO_TABLA, width=30, anchor='w').grid(row=i, column=2)
 
+###################################################################################################################################
+# SELECCIONAR UN SERVICIO
+###################################################################################################################################
+# Esta función crea una ventana de selección de servicio donde se muestran diferentes botones, cada uno representando un servicio 
+# disponible para pagar. 
+def nueva_ventana_seleccionar_servicio(ventana_seleccionar):
+    ventana_seleccionar.title("Seleccionar Servicio")
+    configurar_ventana(ventana_seleccionar, principal=False)
 
+    tk.Label(ventana_seleccionar, text="Seleccione el servicio a pagar:", font=FUENTE_TEXTO).pack(pady=10)
+    # Cargar los servicios disponibles desde el archivo JSON
+    servicios = cargar_servicios()
+
+    # Crear botones para cada servicio
+    for servicio in servicios:
+     tk.Button(ventana_seleccionar, text=servicio, font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white",
+        width=ANCHO_BOTON, height=ALTO_BOTON, command=lambda 
+        s=servicio: seleccionar_servicio(s)).pack(pady=5)
+
+##################################################################################################################################
+# VENTANA PARA PAGAR SERVICIOS
+##################################################################################################################################   
 # Configura una ventana para pagar un servicio seleccionado.
 # Incluye la lógica para pagar el servicio y actualizar el saldo.
+
 def seleccionar_servicio(servicio):
     global ventana_actual, saldo_actual
     if ventana_actual is not None: # Si hay una ventana abierta, cerrarla
@@ -282,6 +339,7 @@ def seleccionar_servicio(servicio):
     # si el monto es menor o igual al saldo actual, se actualiza el saldo y se guarda el movimiento
     # si el monto es mayor al saldo actual, no se actualiza el saldo y se muestra un mensaje de error
     # si el valor ingresado no es un numero, da error y no permite realizar la operacion
+    
     def pagar():
         global saldo_actual
         try:
@@ -302,7 +360,12 @@ def seleccionar_servicio(servicio):
             messagebox.showerror("Error", "Por favor, ingrese un monto válido.")
             ventana_actual.destroy()
 
-    tk.Button(ventana_actual, text="Pagar", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=pagar).pack(pady=10)
+    tk.Button(ventana_actual, text="Pagar", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, 
+              height=ALTO_BOTON, command=pagar).pack(pady=10)
+    
+#######################################################################################################################
+# VENTANA PARA AGREGAR SERVICIOS	
+#######################################################################################################################
 
 # Esta ventana permite agregar un nuevo servicio a la lista de servicios.
 def nueva_ventana_agregar_servicio(ventana_agregar):
@@ -343,7 +406,8 @@ def nueva_ventana_agregar_servicio(ventana_agregar):
             ventana_agregar.destroy()
             
             
-    tk.Button(ventana_agregar, text="Agregar", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=agregar).pack(pady=10)
+    tk.Button(ventana_agregar, text="Agregar", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, 
+              height=ALTO_BOTON, command=agregar).pack(pady=10)
 
 # Esta ventana permite eliminar un servicio de la lista de servicios.
 def nueva_ventana_eliminar_servicio(ventana_eliminar):
@@ -370,9 +434,7 @@ def eliminar_servicio(servicio, ventana_eliminar):
         guardar_servicios(servicios)
         messagebox.showinfo("Éxito", "El servicio ha sido eliminado correctamente.")
         ventana_eliminar.destroy()
-   
-        
-# actualizar servicios
+
 def abrir_ventana(funcion_ventana):
     global ventana_actual
     if ventana_actual is not None:
@@ -388,7 +450,7 @@ def on_closing(funcion_ventana):
     ventana_actual = None
     
 ####################################################################################################
-# Ventanas y Funciones para Beneficios y Actualización de Servicios
+# Ventanas y Funciones para Beneficios 
 ####################################################################################################
 def nueva_ventana_beneficios(ventana_beneficios):
     ventana_beneficios.title("Beneficios")
@@ -396,7 +458,8 @@ def nueva_ventana_beneficios(ventana_beneficios):
     configurar_ventana(ventana_beneficios)
 
     # Título de beneficios con fuente y subrayado
-    tk.Label(ventana_beneficios, text="Beneficios de la Billetera Virtual", font=FUENTE_TITULO_BENEFICIOS, wraplength=280).pack(pady=10)
+    tk.Label(ventana_beneficios, text="Beneficios de la Billetera Virtual", 
+             font=FUENTE_TITULO_BENEFICIOS, wraplength=280).pack(pady=10)
 
     beneficios = [
         "😊 Facilidad de uso: realiza pagos de manera sencilla y rápida.",
@@ -411,11 +474,13 @@ def nueva_ventana_beneficios(ventana_beneficios):
 
     # Cambiar la fuente y tamaño del texto para beneficios
     for beneficio in beneficios:
-        tk.Label(frame_beneficios, text=beneficio, font=("Roboto Medium", 11), wraplength=300, justify="left", anchor="w", bg=COLOR_CUADROS_BENEFICIOS).pack(pady=5, padx=10, anchor="w")
+        tk.Label(frame_beneficios, text=beneficio, font=("Roboto Medium", 11), wraplength=300, justify="left", anchor="w", 
+        bg=COLOR_CUADROS_BENEFICIOS).pack(pady=5, padx=10, anchor="w")
 
     # Cambiar la fuente y agregar emojis a cada oración
     for beneficio in beneficios:
-        tk.Label(frame_beneficios, text=beneficio, font=FUENTE_BENEFICIOS, wraplength=280, justify="left", anchor="w", bg=COLOR_CUADROS_BENEFICIOS).pack(pady=5, padx=10, anchor="w")
+        tk.Label(frame_beneficios, text=beneficio, font=FUENTE_BENEFICIOS, wraplength=280, justify="left", anchor="w",
+         bg=COLOR_CUADROS_BENEFICIOS).pack(pady=5, padx=10, anchor="w")
 
     # Botones home y salir
     frame_botones = tk.Frame(ventana_beneficios, bg=COLOR_BOTON, height=ALTURA_FRANJA)
@@ -423,7 +488,10 @@ def nueva_ventana_beneficios(ventana_beneficios):
     frame_botones.lower()
 
     ventana_beneficios.mainloop()
+    
 ##################################################################################################
+# VENTANA Y FUNCIONES PARA Actualización de Servicios
+#################################################################################################
 # Crea una ventana para actualizar un servicio seleccionado.
 # Permite cambiar el nombre del servicio y registra el cambio en movimientos.
 
@@ -442,6 +510,7 @@ def nueva_ventana_actualizar_servicio(ventana_actualizar):
 
 # Esta ventana permite actualizar un servicio de la lista de servicios, 
 # si cambio de nombre por ejemplo, permite modificarlo
+
 def ventana_actualizar_servicio(ventana_actualizar, servicio):
     ventana_actualizar.title(f"Actualizar {servicio}")
     configurar_ventana(ventana_actualizar)
@@ -450,7 +519,7 @@ def ventana_actualizar_servicio(ventana_actualizar, servicio):
     entry_nuevo_servicio = tk.Entry(ventana_actualizar, font=FUENTE_TEXTO)
     entry_nuevo_servicio.pack(pady=10)
     
-    # Esta funcion actualiza el servicio seleccionado y lo guarda en la lista de servicios
+# Esta funcion actualiza el servicio seleccionado y lo guarda en la lista de servicios
     def actualizar():
         nuevo_servicio = entry_nuevo_servicio.get()
         if nuevo_servicio:
@@ -466,9 +535,239 @@ def ventana_actualizar_servicio(ventana_actualizar, servicio):
                 messagebox.showinfo("Éxito", "El servicio ha sido actualizado correctamente.")
                 ventana_actualizar.destroy() 
      
-    tk.Button(ventana_actualizar, text="Actualizar", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, height=ALTO_BOTON, command=actualizar).pack(pady=10)
+    tk.Button(ventana_actualizar, text="Actualizar", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, 
+              height=ALTO_BOTON, command=actualizar).pack(pady=10)
+    
+    
+#############################################################################################
+#                                             LOGIN
+# ###########################################################################################
 
-crear_ventana_principal()
+# ESTA VENTANA LOGIN SE ABRE CUANDO SE INICIA LA APP y crea una interfaz de usuario para 
+# iniciar sesión con campos para nombre de usuario y contraseña, y botones para iniciar 
+# sesión o registrar una nueva cuenta.
+#############################################################################################
+
+def nueva_ventana_login():
+    ventana_login = tk.Tk()
+    ventana_login.title("Inicio de Sesión")
+
+    configurar_ventana(ventana_login)
+
+    tk.Label(ventana_login, text="Inicio de Sesión", font=FUENTE_TITULO).pack(pady=10)
+
+    frame_formulario = tk.Frame(ventana_login)
+    frame_formulario.pack(pady=10)
+
+    tk.Label(frame_formulario, text="Usuario:", font=FUENTE_TEXTO).pack(padx=5, pady=5)
+    usuario_entry = tk.Entry(frame_formulario, font=FUENTE_TEXTO)
+    usuario_entry.pack(padx=5, pady=5)
+
+    tk.Label(frame_formulario, text="Contraseña:", font=FUENTE_TEXTO).pack(padx=5, pady=5)
+    contrasena_entry = tk.Entry(frame_formulario, font=FUENTE_TEXTO, show="*")
+    contrasena_entry.pack(padx=5, pady=5)
+
+    tk.Button(ventana_login, text="Iniciar Sesión", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, 
+    height=ALTO_BOTON, command=lambda: iniciar_sesion(usuario_entry.get(), contrasena_entry.get(), ventana_login)).pack(pady=10)
+    
+    tk.Button(ventana_login, text="Registrarse", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, 
+              height=ALTO_BOTON, command=lambda: abrir_ventana(nueva_ventana_registro)).pack(pady=10)
+
+    ventana_login.mainloop()
+
+#####################################################################################################################  
+# VENTANA INICIAR SESION: Esta función es crucial para el proceso de inicio de sesión de tu aplicación, ya que verifica 
+# la autenticidad del usuario antes de permitirle acceder a la ventana principal.
+# Si el usuario y la contraseña son válidos, se destruye la ventana de inicio de sesión y se abre la ventana principal.
+# Si los datos son incorrectos, se muestra un mensaje de error.
+#####################################################################################################################
+
+def iniciar_sesion(usuario, contrasena, ventana_login):
+    usuarios = cargar_usuarios()
+    for usuario_data in usuarios:
+        if usuario_data['usuario'] == usuario and usuario_data['contrasena'] == contrasena:
+            ventana_login.destroy()
+            crear_ventana_principal()
+            return
+    messagebox.showerror("Error de inicio de sesión", "Usuario o contraseña incorrectos")
+    
+####################################################################################################################
+# VENTANA DE REGISTRO: Esta ventana es la interfaz gráfica para registrar nuevos usuarios en tu aplicación.
+# Permite a los usuarios ingresar un nombre de usuario y una contraseña, que luego se almacenarán en tu archivo JSON
+# de usuarios cuando se haga clic en el botón "Registrar".
+####################################################################################################################
+
+def nueva_ventana_registro(ventana_registro):
+    ventana_registro.title("Registro")
+    
+    configurar_ventana(ventana_registro)
+
+    tk.Label(ventana_registro, text="Registro", font=FUENTE_TITULO).pack(pady=10)
+
+    frame_formulario = tk.Frame(ventana_registro)
+    frame_formulario.pack(pady=10)
+
+    tk.Label(frame_formulario, text="Usuario:", font=FUENTE_TEXTO).grid(row=0, column=0, sticky="w", padx=5, pady=5)
+    usuario_entry = tk.Entry(frame_formulario, font=FUENTE_TEXTO)
+    usuario_entry.grid(row=0, column=1, padx=5, pady=5)
+
+    tk.Label(frame_formulario, text="Contraseña:", font=FUENTE_TEXTO).grid(row=1, column=0, sticky="w", padx=5, pady=5)
+    contrasena_entry = tk.Entry(frame_formulario, font=FUENTE_TEXTO, show="*")
+    contrasena_entry.grid(row=1, column=1, padx=5, pady=5)
+
+    tk.Button(ventana_registro, text="Registrar", font=FUENTE_BOTON, bg=COLOR_BOTON, fg="white", width=ANCHO_BOTON, 
+    height=ALTO_BOTON, command=lambda: registrar_usuario(usuario_entry.get(), contrasena_entry.get(), ventana_registro)).pack()
+
+###############################################################################################################################
+# VENTANA REGISTRAR USUARIO: Esta función se encarga de registrar un nuevo usuario en el archivo JSON de usuarios.
+# Verifica si el nombre de usuario ya está en uso antes de agregarlo al archivo.
+###############################################################################################################################
+
+def registrar_usuario(usuario, contrasena, ventana_registro):
+    usuarios = cargar_usuarios()
+    if any(u['usuario'] == usuario for u in usuarios):
+        messagebox.showerror("Error de registro", "El nombre de usuario ya está en uso.")
+    else:
+        usuarios.append({'usuario': usuario, 'contrasena': contrasena})
+        guardar_usuarios(usuarios)
+        ventana_registro.destroy()
+        messagebox.showinfo("Éxito", "Usuario registrado correctamente.")
+        
+###############################################################################################################################
+# Inicializar la ventana de login
+nueva_ventana_login()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
 
 
 
