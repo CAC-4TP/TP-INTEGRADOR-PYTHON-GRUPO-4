@@ -85,21 +85,13 @@ def cargar_usuarios():
     except (FileNotFoundError, json.JSONDecodeError):
         usuarios = []
     return usuarios
+
 # si no esta registrado debe registrarse
 def guardar_usuarios(usuarios):
     with open('usuarios.json', 'w') as archivo:
         json.dump(usuarios, archivo)
         
-#json usuarios registrados: guarda nombre y contraseña
 
-def cargar_usuarios_registrados():
-    try:
-        with open('usuarios_registrados.json', 'r') as archivo:
-            usuarios_registrados = json.load(archivo)
-    except (FileNotFoundError, json.JSONDecodeError):
-        usuarios_registrados = []
-    return usuarios_registrados   
-        
 
 
 #############################################################################################
@@ -636,6 +628,197 @@ def registrar_usuario(usuario, contrasena, ventana_registro):
 ###############################################################################################################################
 # Inicializar la ventana de login
 nueva_ventana_login()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
