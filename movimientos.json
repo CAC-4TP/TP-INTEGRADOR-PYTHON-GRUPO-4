@@ -1,1 +1,1 @@
-[{"operacion": "Pago de servicio", "monto": -5200.0, "detalle": "LUZ"}, {"operacion": "Ingreso", "monto": 25500, "detalle": "Dinero acreditado"}]
+[{"operacion": "Eliminaci\u00f3n de servicio", "monto": 0, "detalle": "CLARO"}, {"operacion": "Actualizaci\u00f3n", "monto": 0, "detalle": "TEL\u00c9FONO cambi\u00f3 a CLARO"}, {"operacion": "Nuevo servicio", "monto": 0, "detalle": "TEL\u00c9FONO"}, {"operacion": "Pago de servicio", "monto": -250.0, "detalle": "GAS"}, {"operacion": "Ingreso", "monto": 2500, "detalle": "Dinero acreditado"}]
