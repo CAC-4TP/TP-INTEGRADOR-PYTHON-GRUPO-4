@@ -89,8 +89,7 @@ def cargar_usuarios():
 # si no esta registrado debe registrarse
 def guardar_usuarios(usuarios):
     with open('usuarios.json', 'w') as archivo:
-        json.dump(usuarios, archivo)
-        
+        json.dump(usuarios, archivo)        
 
 
 
